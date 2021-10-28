@@ -1,0 +1,9 @@
+services:
+  _defaults:
+    autowire: true
+
+  app.bot:
+    class: Powernic\Bot\Application
+    public: true
+    arguments:
+      $token: '%env(BOT_TOKEN)%'

@@ -1,0 +1,23 @@
+{
+    "name": "powernic/bot",
+    "require-dev": {
+        "squizlabs/php_codesniffer": "*",
+        "phpmd/phpmd": "*",
+        "phpstan/phpstan-symfony": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Powernic\\Bot\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Powernic",
+            "email": "powernic1@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/config": "^5.3",
+        "symfony/yaml": "^5.3"
+    }
+}
