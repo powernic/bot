@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Symfony\Component\DependencyInjection\Container;
+
+/** @var false|Container $container */
+$container = include(__DIR__ . "/../bootstrap.php");
+
+if ($container->has(EntityManager::class)) {
+    /** @var EntityManager $em */
+    $em = $container->get(EntityManager::class);
+    ConsoleRunner::run(ConsoleRunner::createHelperSet($em));
+}

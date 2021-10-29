@@ -18,6 +18,11 @@
     ],
     "require": {
         "symfony/config": "^5.3",
-        "symfony/yaml": "^5.3"
+        "symfony/yaml": "^5.3",
+        "telegram-bot/api": "^2.3",
+        "symfony/http-foundation": "^5.3",
+        "symfony/serializer": "^5.3",
+        "symfony/cache": "^5.3",
+        "doctrine/orm": "^2.10"
     }
 }

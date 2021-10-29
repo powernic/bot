@@ -2,12 +2,35 @@
 
 namespace Powernic\Bot;
 
-class Application
-{
-    private string $token;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use TelegramBot\Api\BotApi;
+use TelegramBot\Api\Client;
+use TelegramBot\Api\Exception;
 
-    public function __construct(string $token)
+final class Application
+{
+    private Client $client;
+    private BotApi $bot;
+
+    public function __construct(Client $client, BotApi $bot)
     {
-        $this->token = $token;
+        $this->client = $client;
+        $this->bot = $bot;
+    }
+
+    public function run(Request $request): Response
+    {
+        try {
+            $this->client->command('emias-reg', function ($message) {
+                $chatId = $message->getChat()->getId();
+                $this->bot->sendMessage($chatId, 'pong!');
+            });
+            $this->client->run();
+        } catch (Exception $e) {
+            return new Response($e->getMessage(), $e->getCode());
+        }
+
+        return new Response();
     }
 }

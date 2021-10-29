@@ -5,5 +5,17 @@ services:
   app.bot:
     class: Powernic\Bot\Application
     public: true
+
+  Doctrine\ORM\EntityManager:
+    public: true
+    factory: ['Powernic\Bot\Doctrine\EntityManagerFactory','create']
     arguments:
-      $token: '%env(BOT_TOKEN)%'
+      $url: '%env(DATABASE_URL)%'
+
+  TelegramBot\Api\Client:
+    arguments:
+      $token: '%env(TOKEN)%'
+
+  TelegramBot\Api\BotApi:
+    arguments:
+      $token: '%env(TOKEN)%'
