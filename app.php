@@ -1,6 +1,5 @@
 <?php
 
-use Doctrine\ORM\EntityManager;
 use Powernic\Bot\Application;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,5 +12,5 @@ if ($container->has("app.bot")) {
     /** @var Application $bot */
     $bot = $container->get("app.bot");
     $request = Request::createFromGlobals();
-    $bot->run($request)->send();
+    $bot->run();
 }

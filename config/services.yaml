@@ -6,9 +6,15 @@ services:
     class: Powernic\Bot\Application
     public: true
 
+  app.command_handler.emias.registration:
+    class: Powernic\Bot\CommandHandler\Emias\EmiasRegistrationCommandHandler
+    tags:
+      - { name: 'app.command_handler', 'command': 'emias:reg' }
+
+
+
   Doctrine\ORM\EntityManager:
-    public: true
-    factory: ['Powernic\Bot\Doctrine\EntityManagerFactory','create']
+    factory: [ 'Powernic\Bot\Doctrine\EntityManagerFactory','create' ]
     arguments:
       $url: '%env(DATABASE_URL)%'
 

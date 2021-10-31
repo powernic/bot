@@ -1,5 +1,6 @@
 <?php
 
+use Powernic\Bot\DependencyInjection\CommandHandlerPass;
 use Powernic\Bot\DependencyInjection\BotExtension;
 use Symfony\Component\Config\ConfigCache;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -12,17 +13,19 @@ $file = __DIR__ . '/cache/container.php';
 $containerConfigCache = new ConfigCache($file, true);
 
 if (!$containerConfigCache->isFresh()) {
-    $containerBuilder = new ContainerBuilder();
+    $container = new ContainerBuilder();
     $extension = new BotExtension();
-    $containerBuilder->registerExtension($extension);
-    $containerBuilder->loadFromExtension($extension->getAlias());
-    $containerBuilder->compile(true);
+    $container->addCompilerPass(new CommandHandlerPass());
+    $container->registerExtension($extension);
+    $container->loadFromExtension($extension->getAlias());
+    $container->compile(true);
 
-    $dumper = new PhpDumper($containerBuilder);
+    $dumper = new PhpDumper($container);
     $containerConfigCache->write(
         $dumper->dump(['class' => 'CachedContainer']),
-        $containerBuilder->getResources()
+        $container->getResources()
     );
 }
 require $file;
+
 return new CachedContainer();
