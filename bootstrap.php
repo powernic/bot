@@ -24,7 +24,6 @@ if (!$containerConfigCache->isFresh()) {
     $container->addCompilerPass(new CallbackHandlerPass());
     $container->addCompilerPass(new AddConstraintValidatorsPass());
     $container->addCompilerPass(new AddValidatorInitializersPass());
-    $container->addCompilerPass(new TranslatorPass());
     $container->addCompilerPass(new TranslatorPathsPass());
     $container->registerExtension($extension);
     $container->loadFromExtension($extension->getAlias());

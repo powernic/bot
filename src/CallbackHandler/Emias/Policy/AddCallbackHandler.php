@@ -16,6 +16,7 @@ use Powernic\Bot\Exception\UnexpectedRequestException;
 use Powernic\Bot\Repository\Chat\MessageRepository;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Exception as BotException;
 use TelegramBot\Api\InvalidArgumentException;
@@ -25,21 +26,20 @@ class AddCallbackHandler extends AbstractCallbackHandler
 {
     private BotApi $bot;
     private EntityManager $entityManager;
-    private array $policyFields = [
-        ["field" => "name", "message" => "Название полиса:"],
-        ["field" => "code", "message" => "Номер полиса:"],
-        ["field" => "date", "message" => "Дата рождения в формате Год-Месяц-День, например: (2020-03-30)"],
-    ];
+    private array $policyFields = ["name", "code", "date"];
     private ValidatorInterface $validator;
+    private TranslatorInterface $translator;
 
     public function __construct(
         BotApi $bot,
         EntityManager $entityManager,
         ValidatorInterface $validator,
+        TranslatorInterface $translator,
     ) {
         $this->bot = $bot;
         $this->entityManager = $entityManager;
         $this->validator = $validator;
+        $this->translator = $translator;
     }
 
     /**
@@ -70,6 +70,7 @@ class AddCallbackHandler extends AbstractCallbackHandler
     public function textHandle(): void
     {
         parent::textHandle();
+
         $message = $this->getUpdate()->getMessage();
         $chat = $message->getChat();
         $userRepository = $this->entityManager->getRepository(User::class);
@@ -82,13 +83,13 @@ class AddCallbackHandler extends AbstractCallbackHandler
         if ($filledPolicyFields >= $allPolicyFields) {
             throw new UnexpectedRequestException();
         }
-        $field = $this->policyFields[$filledPolicyFields];
-        $nextMessage = $this->policyFields[$filledPolicyFields + 1];
+        $fieldName = $this->policyFields[$filledPolicyFields];
+        $nextFieldName = $this->policyFields[$filledPolicyFields + 1];
         try {
             $responseMessage = $this->handleValue(
-                $field["field"],
+                $fieldName,
                 $message->getText(),
-                $nextMessage
+                "emias.policy.add." . $nextFieldName
             );
             if ($filledPolicyFields + 1 == $allPolicyFields) {
                 $this->addPolicy($user, $message->getText());
@@ -100,7 +101,7 @@ class AddCallbackHandler extends AbstractCallbackHandler
         }
         $this->bot->sendMessage(
             $chat->getId(),
-            $responseMessage
+            $this->translator->trans($responseMessage)
         );
     }
 
