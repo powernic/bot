@@ -25,7 +25,7 @@ class CommandHandlerPass implements CompilerPassInterface
      */
     public function process(ContainerBuilder $container): void
     {
-        $commandHandlerServices = $container->findTaggedServiceIds('app.command_handler');
+        $commandHandlerServices = $container->findTaggedServiceIds($this->commandTag);
         $lazyCommandRefs = [];
         $lazyCommandMap = [];
         foreach ($commandHandlerServices as $id => $tags) {

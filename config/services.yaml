@@ -6,15 +6,44 @@ services:
     class: Powernic\Bot\Application
     public: true
 
-  app.command_handler.emias.registration:
-    class: Powernic\Bot\CommandHandler\Emias\EmiasRegistrationCommandHandler
+  app.emias.policy:
+    class: Powernic\Bot\CommandHandler\Emias\EmiasPolicyCommandHandler
     tags:
-      - { name: 'app.command_handler', 'command': 'emias:reg' }
+      - { name: 'app.command_handler', 'command': 'emiaspolicy' }
+
+  app.emias.policy.add:
+    class: Powernic\Bot\CallbackHandler\Emias\Policy\AddCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiaspolicy:add' }
+
+  app.emias.policy.edit:
+    class: Powernic\Bot\CallbackHandler\Emias\Policy\EditCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiaspolicy:edit:{id}' }
+    arguments:
+      [ '@TelegramBot\Api\BotApi', '@Doctrine\ORM\EntityManager' ]
+
+  Powernic\Bot\TextHandler\CallbackTextHandler:
 
 
+  validator.validator_factory:
+    class: Symfony\Component\Validator\ValidatorBuilder
+    arguments:
+      -
+    calls:
+      - [ enableAnnotationMapping, [ true ] ]
+
+  validator.builder: '@validator.validator_factory'
+
+  validator:
+    class: Symfony\Component\Validator\Validator\ValidatorInterface
+    factory: [ '@validator.validator_factory', 'getValidator' ]
+
+  Symfony\Component\Validator\Validator\ValidatorInterface: '@validator'
 
   Doctrine\ORM\EntityManager:
     factory: [ 'Powernic\Bot\Doctrine\EntityManagerFactory','create' ]
+    public: true
     arguments:
       $url: '%env(DATABASE_URL)%'
 
