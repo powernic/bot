@@ -32,7 +32,7 @@ class Policy
     #[Assert\Length(
         min: 16,
         max: 16,
-        exactMessage: "Номер полиса должен иметь длину {{ limit }} символов"
+        exactMessage: "validator.policy.code"
     )]
     private $code;
 
@@ -40,7 +40,7 @@ class Policy
      * @Column(type="date")
      */
     #[Assert\Date(
-        message: "Дата указана неверно"
+        message: "validator.policy.date"
     )]
     private $date;
 
