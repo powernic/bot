@@ -23,8 +23,8 @@ final class BotExtension extends Extension
     private function getKernelParameters(): array
     {
         return [
-            'kernel.project_dir' => realpath(__DIR__ . '/../../'),
-            'kernel.cache_dir' => realpath(__DIR__ . '/../../cache'),
+            'kernel.project_dir' => __DIR__ . '/../../',
+            'kernel.cache_dir' => __DIR__ . '/../../cache',
         ];
     }
 }
