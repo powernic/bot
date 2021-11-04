@@ -5,8 +5,6 @@ namespace Powernic\Bot\CallbackHandler\Emias\Policy;
 use DateTime;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Query\QueryException;
 use Exception;
 use Powernic\Bot\CallbackHandler\AbstractCallbackHandler;
 use Powernic\Bot\Entity\Chat\Message;
@@ -26,7 +24,9 @@ class AddCallbackHandler extends AbstractCallbackHandler
 {
     private BotApi $bot;
     private EntityManager $entityManager;
+    private string $messagePrefix = "emias.policy.add.";
     private array $policyFields = ["name", "code", "date"];
+    private ?int $countFilledPolicyFields = null;
     private ValidatorInterface $validator;
     private TranslatorInterface $translator;
 
@@ -43,8 +43,9 @@ class AddCallbackHandler extends AbstractCallbackHandler
     }
 
     /**
-     * @throws BotException|InvalidArgumentException|ORMException|OptimisticLockException
-     * @throws Exception
+     * @throws BotException
+     * @throws InvalidArgumentException
+     * @throws OptimisticLockException
      */
     public function handle(): void
     {
@@ -57,48 +58,8 @@ class AddCallbackHandler extends AbstractCallbackHandler
             $user = $this->createUser($query);
         }
         $this->setUserAction($user, $query);
-        $text = "Название полиса:";
-        $this->bot->sendMessage(
-            $chat->getId(),
-            $text
-        );
-    }
-
-    /**
-     * @throws UnexpectedRequestException|Exception
-     */
-    public function textHandle(): void
-    {
-        parent::textHandle();
-
-        $message = $this->getUpdate()->getMessage();
-        $chat = $message->getChat();
-        $userRepository = $this->entityManager->getRepository(User::class);
-        /** @var ?User $user */
-        $user = $userRepository->find($chat->getId());
-        $allPolicyFields = count($this->policyFields);
-        /** @var MessageRepository $messageRepository */
-        $messageRepository = $this->entityManager->getRepository(Message::class);
-        $filledPolicyFields = $messageRepository->countLastAction($user);
-        if ($filledPolicyFields >= $allPolicyFields) {
-            throw new UnexpectedRequestException();
-        }
-        $fieldName = $this->policyFields[$filledPolicyFields];
-        $nextFieldName = $this->policyFields[$filledPolicyFields + 1];
-        try {
-            $responseMessage = $this->handleValue(
-                $fieldName,
-                $message->getText(),
-                "emias.policy.add." . $nextFieldName
-            );
-            if ($filledPolicyFields + 1 == $allPolicyFields) {
-                $this->addPolicy($user, $message->getText());
-            }
-            $this->addMessage($message, $user);
-            $this->entityManager->flush();
-        } catch (ValidationFailedException $e) {
-            $responseMessage = $e->getViolations()->get(0)->getMessage();
-        }
+        $firstFieldName = $this->policyFields[0];
+        $responseMessage = $this->messagePrefix . $firstFieldName;
         $this->bot->sendMessage(
             $chat->getId(),
             $this->translator->trans($responseMessage)
@@ -106,21 +67,54 @@ class AddCallbackHandler extends AbstractCallbackHandler
     }
 
     /**
-     * @param string $name
-     * @param string $value
-     * @param string $message
+     * @throws BotException
+     * @throws InvalidArgumentException
+     */
+    public function textHandle(): void
+    {
+        parent::textHandle();
+        try {
+            $this->checkRequest();
+            $responseMessage = $this->processField();
+            if ($this->isLastFieldRequest()) {
+                $policy = $this->addPolicy($this->getMessageText());
+                $responseMessage = $this->translator->trans(
+                    $this->messagePrefix . "success",
+                    ['%police_name%' => $policy->getName()]
+                );
+            }
+            $this->saveMessage();
+            $this->entityManager->flush();
+        } catch (UnexpectedRequestException) {
+            $responseMessage = $this->translator->trans("exception.unexpected.request");
+        } catch (ValidationFailedException $e) {
+            $responseMessage = $e->getViolations()->get(0)->getMessage();
+        } catch (Exception $e) {
+            $responseMessage = $this->translator->trans($e->getMessage());
+        }
+
+        $this->bot->sendMessage(
+            $this->getUpdate()->getMessage()->getChat()->getId(),
+            $responseMessage
+        );
+    }
+
+    /**
      * @return string
      * @throws ValidationFailedException
      */
-    private function handleValue(string $name, string $value, string $message): string
+    private function processField(): string
     {
-        $errors = $this->validator->validatePropertyValue(Policy::class, $name, $value);
+        $filledPolicyFields = $this->getCountFilledPolicyFields();
+        $fieldName = $this->policyFields[$filledPolicyFields];
+        $value = $this->getMessageText();
+        $errors = $this->validator->validatePropertyValue(Policy::class, $fieldName, $value);
         $hasError = count($errors) > 0;
         if ($hasError) {
             throw new ValidationFailedException($value, $errors);
         }
 
-        return $message;
+        return $this->getMessageField();
     }
 
 
@@ -140,7 +134,7 @@ class AddCallbackHandler extends AbstractCallbackHandler
     }
 
     /**
-     * @throws Exception|OptimisticLockException|ORMException
+     * @throws Exception|OptimisticLockException
      */
     private function setUserAction(User $user, CallbackQuery $query)
     {
@@ -152,40 +146,109 @@ class AddCallbackHandler extends AbstractCallbackHandler
     }
 
     /**
-     * @param User $user
      * @param string $date
-     * @throws ORMException
-     * @throws QueryException
+     * @return Policy
      * @throws Exception
      */
-    private function addPolicy(User $user, string $date): void
+    private function addPolicy(string $date): Policy
     {
-        /** @var MessageRepository $messageRepository */
-        $messageRepository = $this->entityManager->getRepository(Message::class);
-        $messages = $messageRepository->getAllByLastAction($user);
-        $name = $messages[0]->getText();
-        $code = $messages[1]->getText();
-        $policy = (new Policy())
-            ->setUser($user)
-            ->setName($name)
-            ->setCode($code)
-            ->setDate($date);
-        $this->entityManager->persist($policy);
+        try {
+            $user = $this->getUser();
+            /** @var MessageRepository $messageRepository */
+            $messageRepository = $this->entityManager->getRepository(Message::class);
+            $messages = $messageRepository->getAllByLastAction($user);
+            $name = $messages[0]->getText();
+            $code = $messages[1]->getText();
+            $policy = (new Policy())
+                ->setUser($user)
+                ->setName($name)
+                ->setCode($code)
+                ->setDate($date);
+            $this->entityManager->persist($policy);
+
+            return $policy;
+        } catch (Exception) {
+            throw new Exception("exception.policy.add.policy");
+        }
     }
 
     /**
-     * @param \TelegramBot\Api\Types\Message $message
-     * @param User|null $user
-     * @throws ORMException
+     * @throws Exception
      */
-    private function addMessage(\TelegramBot\Api\Types\Message $message, ?User $user): void
+    private function saveMessage(): void
     {
-        $message = (new Message())
-            ->setId($message->getMessageId())
-            ->setUser($user)
-            ->setActionCode($this->getName())
-            ->setTime((new DateTime())->setTimestamp($message->getDate()))
-            ->setText($message->getText());
-        $this->entityManager->persist($message);
+        try {
+            $user = $this->getUser();
+            $telegramMessage = $this->getUpdate()->getMessage();
+            $message = (new Message())
+                ->setId($telegramMessage->getMessageId())
+                ->setUser($user)
+                ->setActionCode($this->getName())
+                ->setTime((new DateTime())->setTimestamp($telegramMessage->getDate()))
+                ->setText($this->getMessageText());
+            $this->entityManager->persist($message);
+        } catch (Exception) {
+            throw new Exception("exception.policy.add.message");
+        }
+    }
+
+    private function getMessageText(): string
+    {
+        return $this->getUpdate()->getMessage()->getText();
+    }
+
+    /**
+     * @throws UnexpectedRequestException
+     */
+    private function checkRequest()
+    {
+        $allPolicyFields = count($this->policyFields);
+        $filledPolicyFields = $this->getCountFilledPolicyFields();
+        if ($filledPolicyFields >= $allPolicyFields) {
+            throw new UnexpectedRequestException();
+        }
+    }
+
+    /**
+     * @return int
+     */
+    private function getCountFilledPolicyFields(): int
+    {
+        if (!isset($this->countFilledPolicyFields)) {
+            $user = $this->getUser();
+            /** @var MessageRepository $messageRepository */
+            $messageRepository = $this->entityManager->getRepository(Message::class);
+            $this->countFilledPolicyFields = $messageRepository->countLastAction($user);
+        }
+
+        return $this->countFilledPolicyFields;
+    }
+
+    private function getMessageField(): string
+    {
+        if ($this->isLastFieldRequest()) {
+            return "";
+        }
+
+        $filledPolicyFields = $this->getCountFilledPolicyFields();
+        $messageField = $this->policyFields[$filledPolicyFields + 1];
+
+        return $this->translator->trans($this->messagePrefix . $messageField);
+    }
+
+    private function isLastFieldRequest(): bool
+    {
+        $filledPolicyFields = $this->getCountFilledPolicyFields();
+        $allPolicyFields = count($this->policyFields);
+
+        return $filledPolicyFields + 1 === $allPolicyFields;
+    }
+
+    private function getUser(): User
+    {
+        $chat = $this->getUpdate()->getMessage()->getChat();
+        $userRepository = $this->entityManager->getRepository(User::class);
+
+        return $userRepository->find($chat->getId());
     }
 }
