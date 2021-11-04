@@ -174,7 +174,6 @@ class User
 
     /**
      * @return DateTime
-     * @throws Exception
      */
     public function getActionTime(): DateTime
     {

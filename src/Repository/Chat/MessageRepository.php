@@ -12,9 +12,6 @@ use Powernic\Bot\Entity\Chat\User;
 class MessageRepository extends EntityRepository
 {
 
-    /**
-     * @throws Exception
-     */
     private function getLastActionCriteria(User $user): Criteria
     {
         return Criteria::create()
@@ -23,9 +20,6 @@ class MessageRepository extends EntityRepository
             ->andWhere(Criteria::expr()->gte("time", $user->getActionTime()));
     }
 
-    /**
-     * @throws Exception
-     */
     public function countLastAction(User $user): int
     {
         $qb = $this->createQueryBuilder("u");
