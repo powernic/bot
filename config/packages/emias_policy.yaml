@@ -1,0 +1,20 @@
+services:
+  _defaults:
+    autowire: true
+
+  app.emias.policy:
+    class: Powernic\Bot\Emias\Policy\CommandHandler\EmiasPolicyCommandHandler
+    tags:
+      - { name: 'app.command_handler', 'command': 'emiaspolicy' }
+
+  app.emias.policy.add:
+    class: Powernic\Bot\Emias\Policy\CallbackHandler\AddCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiaspolicy:add' }
+
+  app.emias.policy.edit:
+    class: Powernic\Bot\Emias\Policy\CallbackHandler\EditCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiaspolicy:edit:{id}' }
+    arguments:
+      [ '@TelegramBot\Api\BotApi', '@Doctrine\ORM\EntityManager' ]

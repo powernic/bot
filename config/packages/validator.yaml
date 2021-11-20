@@ -1,0 +1,16 @@
+services:
+  validator.validator_factory:
+    class: Symfony\Component\Validator\ValidatorBuilder
+    arguments:
+      -
+    calls:
+      - [ enableAnnotationMapping, [ true ] ]
+      - [ setTranslator, [ '@translator' ] ]
+
+  validator.builder: '@validator.validator_factory'
+
+  validator:
+    class: Symfony\Component\Validator\Validator\ValidatorInterface
+    factory: [ '@validator.validator_factory', 'getValidator' ]
+
+  Symfony\Component\Validator\Validator\ValidatorInterface: '@validator'

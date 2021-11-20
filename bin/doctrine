@@ -3,11 +3,14 @@
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Powernic\Bot\Application;
+use Powernic\Bot\Kernel;
 use Symfony\Component\DependencyInjection\Container;
 
-/** @var false|Container $container */
-$container = include(__DIR__ . "/../bootstrap.php");
-
+require __DIR__ . '/../vendor/autoload.php';
+$kernel = new Kernel('dev', true);
+$kernel->boot();
+$container = $kernel->getContainer();
 if ($container->has(EntityManager::class)) {
     /** @var EntityManager $em */
     $em = $container->get(EntityManager::class);

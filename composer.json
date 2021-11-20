@@ -22,11 +22,15 @@
         "symfony/yaml": "^5.3",
         "telegram-bot/api": "^2.3",
         "symfony/http-foundation": "^5.3",
+        "symfony/dependency-injection": "^5.3",
         "symfony/serializer": "^5.3",
         "symfony/cache": "^5.3",
         "doctrine/orm": "^2.10",
         "symfony/validator": "^5.3",
         "doctrine/annotations": "^1.13",
-        "symfony/translation": "^5.3"
+        "symfony/translation": "^5.3",
+        "symfony/http-kernel": "^5.3",
+        "symfony/event-dispatcher": "^5.3",
+        "symfony/finder": "^5.3"
     }
 }

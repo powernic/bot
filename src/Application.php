@@ -2,11 +2,10 @@
 
 namespace Powernic\Bot;
 
-use Powernic\Bot\CallbackHandler\CallbackHandlerLoader;
-use Powernic\Bot\CommandHandler\CommandHandlerLoader;
-use Powernic\Bot\Entity\Chat\User;
-use Powernic\Bot\TextHandler\CallbackTextHandler;
-use TelegramBot\Api\BotApi;
+use Powernic\Bot\Framework\CallbackHandler\CallbackHandlerLoader;
+use Powernic\Bot\Framework\CommandHandler\CommandHandlerLoader;
+use Powernic\Bot\Framework\TextHandler\CallbackTextHandler;
+use Symfony\Component\HttpKernel\KernelInterface;
 use TelegramBot\Api\Client;
 use TelegramBot\Api\InvalidJsonException;
 use TelegramBot\Api\Types\CallbackQuery;
@@ -15,70 +14,87 @@ use TelegramBot\Api\Types\Update;
 
 final class Application
 {
-    private Client $client;
-    private CommandHandlerLoader $commandHandlerLoader;
-    private CallbackHandlerLoader $callbackHandlerLoader;
-    private CallbackTextHandler $callbackTextHandler;
+    private KernelInterface $kernel;
 
-    public function __construct(
-        Client $client,
-        CallbackTextHandler $callbackTextHandler,
-        CommandHandlerLoader $commandHandlerLoader,
-        CallbackHandlerLoader $callbackHandlerLoader,
-    ) {
-        $this->client = $client;
-        $this->commandHandlerLoader = $commandHandlerLoader;
-        $this->callbackHandlerLoader = $callbackHandlerLoader;
-        $this->callbackTextHandler = $callbackTextHandler;
+    /**
+     * @param Kernel $kernel
+     */
+    public function __construct(KernelInterface $kernel)
+    {
+        $this->kernel = $kernel;
     }
 
     /**
      * @throws InvalidJsonException
      */
-    public function run()
+    public function boot()
     {
-        $this->addBotHandlers();
-        $this->client->run();
+        $this->kernel->boot();
+        $this->registerBotHandlers();
+        $this->getClient()->run();
     }
 
-    private function addBotHandlers()
+    private function getClient(): Client
     {
-        $this->addCommandHandler();
-        $this->addCallbackHandler();
-        $this->addTextHandler();
+        return $this->kernel->getContainer()->get(Client::class);
     }
 
-    private function addCommandHandler()
+    private function registerBotHandlers()
     {
-        $commands = $this->commandHandlerLoader->getNames();
-        foreach ($commands as $command) {
-            $this->client->command($command, function (Message $message) use ($command) {
-                $this->commandHandlerLoader->get($command)->handle($message);
-            });
+        $this->registerCommandHandler();
+        $this->registerCallbackHandler();
+        $this->registerTextHandler();
+    }
+
+    private function registerCommandHandler()
+    {
+        $container = $this->kernel->getContainer();
+        if ($container->has(CommandHandlerLoader::class)) {
+            $commandHandlerLoader = $container->get(CommandHandlerLoader::class);
+            $commands = $commandHandlerLoader->getNames();
+            foreach ($commands as $command) {
+                $this->getClient()->command(
+                    $command,
+                    function (Message $message) use ($commandHandlerLoader, $command) {
+                        $commandHandlerLoader->get($command)->handle($message);
+                    }
+                );
+            }
         }
     }
 
-    private function addCallbackHandler()
+    private function registerCallbackHandler()
     {
-        $callbacks = $this->callbackHandlerLoader->getRefs();
-        $this->client->callbackQuery(function (CallbackQuery $callbackQuery) use ($callbacks) {
-            foreach ($callbacks as $callbackId => $callbackHandler) {
-                if (
-                    $callbackId === $callbackQuery->getData()
-                    || $callbackHandler::check($callbackId, $callbackQuery->getData())
-                ) {
-                    $this->callbackHandlerLoader->get($callbackId)->setQuery($callbackQuery)->handle();
+        $container = $this->kernel->getContainer();
+        if ($container->has(CallbackHandlerLoader::class)) {
+            $callbackHandlerLoader = $container->get(CallbackHandlerLoader::class);
+            $callbacks = $callbackHandlerLoader->getRefs();
+            $this->getClient()->callbackQuery(
+                function (CallbackQuery $callbackQuery) use ($callbackHandlerLoader, $callbacks) {
+                    foreach ($callbacks as $callbackId => $callbackHandler) {
+                        if (
+                            $callbackId === $callbackQuery->getData()
+                            || $callbackHandler::check($callbackId, $callbackQuery->getData())
+                        ) {
+                            $callbackHandlerLoader->get($callbackId)->setQuery($callbackQuery)->handle();
+                            break;
+                        }
+                    }
                 }
-            }
-        });
+            );
+        }
     }
 
-    private function addTextHandler()
+    private function registerTextHandler()
     {
-        $this->client->on(function (Update $update) {
-            $this->callbackTextHandler->handle($update);
-        }, function () {
-            return true;
-        });
+        $container = $this->kernel->getContainer();
+        if ($container->has(CallbackTextHandler::class)) {
+            $callbackTextHandler = $container->get(CallbackTextHandler::class);
+            $this->getClient()->on(function (Update $update) use ($callbackTextHandler) {
+                $callbackTextHandler->handle($update);
+            }, function () {
+                return true;
+            });
+        }
     }
 }
