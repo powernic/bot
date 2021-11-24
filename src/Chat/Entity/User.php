@@ -3,16 +3,13 @@
 namespace Powernic\Bot\Chat\Entity;
 
 use DateTime;
-use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
-use Exception;
-use Powernic\Bot\Chat\Entity\Message;
-use Powernic\Bot\Entity\Emias\Policy;
+use Powernic\Bot\Emias\Policy\Entity\Policy;
 
 /**
  * @Entity()
@@ -57,7 +54,7 @@ class User
     private $messages;
 
     /**
-     * @OneToMany(targetEntity=Powernic\Bot\Entity\Emias\Policy::class, mappedBy="user")
+     * @OneToMany(targetEntity=Powernic\Bot\Emias\Policy\Entity\Policy::class, mappedBy="user")
      */
     private $policies;
 

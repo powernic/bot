@@ -1,6 +1,6 @@
 <?php
 
-namespace Powernic\Bot\Exception;
+namespace Powernic\Bot\Framework\Exception;
 
 use Exception;
 

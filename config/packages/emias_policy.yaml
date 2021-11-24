@@ -1,6 +1,15 @@
 services:
   _defaults:
     autowire: true
+    autoconfigure: true
+
+  Powernic\Bot\Emias\Policy\Repository\:
+    resource: '../../src/Emias/Policy/Repository/*'
+
+  Powernic\Bot\Chat\Repository\:
+    resource: '../../src/Chat/Repository/*'
+
+  Powernic\Bot\Emias\Policy\Form\PolicyForm:
 
   app.emias.policy:
     class: Powernic\Bot\Emias\Policy\CommandHandler\EmiasPolicyCommandHandler
@@ -12,9 +21,12 @@ services:
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiaspolicy:add' }
 
+  app.emias.policy.show:
+    class: Powernic\Bot\Emias\Policy\CallbackHandler\ShowCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiaspolicy:show:{id}' }
+
   app.emias.policy.edit:
     class: Powernic\Bot\Emias\Policy\CallbackHandler\EditCallbackHandler
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiaspolicy:edit:{id}' }
-    arguments:
-      [ '@TelegramBot\Api\BotApi', '@Doctrine\ORM\EntityManager' ]

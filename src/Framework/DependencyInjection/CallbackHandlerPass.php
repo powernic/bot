@@ -2,8 +2,9 @@
 
 namespace Powernic\Bot\Framework\DependencyInjection;
 
-use Powernic\Bot\CallbackHandler\CallbackHandlerInterface;
-use Powernic\Bot\CallbackHandler\CallbackHandlerLoader;
+use Powernic\Bot\Framework\Handler\Callback\CallbackHandlerLoader;
+use Powernic\Bot\Framework\Handler\HandlerInterface;
+use ReflectionException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -19,6 +20,9 @@ class CallbackHandlerPass implements CompilerPassInterface
         $this->callbackTag = $commandTag;
     }
 
+    /**
+     * @throws ReflectionException
+     */
     public function process(ContainerBuilder $container)
     {
         $callbackHandlerServices = $container->findTaggedServiceIds($this->callbackTag);
@@ -35,13 +39,13 @@ class CallbackHandlerPass implements CompilerPassInterface
                         sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id)
                     );
                 }
-                if (!$r->implementsInterface(CallbackHandlerInterface::class)) {
+                if (!$r->implementsInterface(HandlerInterface::class)) {
                     throw new InvalidArgumentException(
                         sprintf(
                             'The service "%s" tagged "%s" must be implements interface of "%s".',
                             $id,
                             $this->callbackTag,
-                            CallbackHandlerInterface::class
+                            HandlerInterface::class
                         )
                     );
                 }
@@ -55,7 +59,8 @@ class CallbackHandlerPass implements CompilerPassInterface
         }
 
         $container
-            ->register(CallbackHandlerLoader::class, CallbackHandlerLoader::class)
+            ->register('handler.callback.loader', CallbackHandlerLoader::class)
+            ->setPublic(true)
             ->setArguments([ServiceLocatorTagPass::register($container, $lazyCallbackRefs), $lazyCallbackMap]);
     }
 }

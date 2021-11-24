@@ -3,11 +3,10 @@
 namespace Powernic\Bot\Emias\Policy\CommandHandler;
 
 use Doctrine\ORM\EntityManager;
-use Powernic\Bot\Framework\CommandHandler\CommandHandler;
-use Powernic\Bot\Entity\Emias\Policy;
+use Powernic\Bot\Framework\Handler\Command\CommandHandler;
+use Powernic\Bot\Emias\Policy\Entity\Policy;
 use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
-use TelegramBot\Api\Types\Message;
 
 final class EmiasPolicyCommandHandler extends CommandHandler
 {
@@ -20,15 +19,15 @@ final class EmiasPolicyCommandHandler extends CommandHandler
         $this->entityManager = $entityManager;
     }
 
-    public function handle(Message $message): void
+    public function handle(): void
     {
-        $policyButtons = $this->getPolicyButtons();
+        $policies = $this->getPolicies();
+        $policyButtons = $this->getPolicyButtons($policies);
         $actionButtons = $this->getActionButtons();
         $keyboard = new InlineKeyboardMarkup(array_merge($policyButtons, $actionButtons));
-
         $this->bot->sendMessage(
-            $message->getChat()->getId(),
-            "Список Полисов пуст",
+            $this->message->getChat()->getId(),
+            empty($policies) ? "Список Полисов пуст" : "Список полисов:",
             null,
             false,
             null,
@@ -36,11 +35,12 @@ final class EmiasPolicyCommandHandler extends CommandHandler
         );
     }
 
-    private function getPolicyButtons(): array
+    /**
+     * @param Policy[] $policies
+     * @return array
+     */
+    private function getPolicyButtons(array $policies): array
     {
-        $policyRepository = $this->entityManager->getRepository(Policy::class);
-        /** @var Policy[] $policies */
-        $policies = $policyRepository->findAll();
         $buttons = [];
         foreach ($policies as $policy) {
             $buttons [] = [['text' => $policy->getName(), 'callback_data' => 'emiaspolicy:edit:' . $policy->getId()]];
@@ -54,8 +54,17 @@ final class EmiasPolicyCommandHandler extends CommandHandler
         return [
             [
                 ['text' => '➕ Добавить', 'callback_data' => 'emiaspolicy:add'],
-                ['text' => '➖ Удалить', 'callback_data' => 'emiaspolicy:del'],
             ],
         ];
+    }
+
+    /**
+     * @return Policy[]
+     */
+    private function getPolicies(): array
+    {
+        $policyRepository = $this->entityManager->getRepository(Policy::class);
+
+        return $policyRepository->findAll();
     }
 }

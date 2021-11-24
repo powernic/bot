@@ -4,4 +4,3 @@ services:
 
   yaml_loader:
     class: Symfony\Component\Translation\Loader\YamlFileLoader
- 

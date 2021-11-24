@@ -3,14 +3,19 @@
 namespace Powernic\Bot\Chat\Repository;
 
 use Doctrine\Common\Collections\Criteria;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query\QueryException;
+use Doctrine\Persistence\ManagerRegistry;
 use Exception;
 use Powernic\Bot\Chat\Entity\Message;
 use Powernic\Bot\Chat\Entity\User;
+use Powernic\Bot\Framework\Repository\ServiceEntityRepository;
 
-class MessageRepository extends EntityRepository
+class MessageRepository extends ServiceEntityRepository
 {
+    public function __construct(ManagerRegistry $registry)
+    {
+        parent::__construct($registry, Message::class);
+    }
 
     private function getLastActionCriteria(User $user): Criteria
     {
@@ -38,6 +43,7 @@ class MessageRepository extends EntityRepository
     {
         $qb = $this->createQueryBuilder("u");
         $qb->addCriteria($this->getLastActionCriteria($user))->orderBy("u.time", "ASC");
+
         return $qb->getQuery()->getResult();
     }
 }

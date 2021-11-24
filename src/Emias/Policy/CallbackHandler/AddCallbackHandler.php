@@ -7,13 +7,13 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use Powernic\Bot\Emias\Policy\Entity\Policy;
-use Powernic\Bot\Framework\CallbackHandler\CallbackHandler;
+use Powernic\Bot\Emias\Policy\Form\PolicyForm;
+use Powernic\Bot\Framework\Handler\Callback\CallbackHandler;
 use Powernic\Bot\Chat\Entity\Message;
 use Powernic\Bot\Chat\Entity\User;
-use Powernic\Bot\Exception\UnexpectedRequestException;
 use Powernic\Bot\Chat\Repository\MessageRepository;
+use Powernic\Bot\Framework\Exception\UnexpectedRequestException;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Exception as BotException;
@@ -24,22 +24,19 @@ class AddCallbackHandler extends CallbackHandler
 {
     private BotApi $bot;
     private EntityManager $entityManager;
-    private string $messagePrefix = "emias.policy.add.";
-    private array $policyFields = ["name", "code", "date"];
-    private ?int $countFilledPolicyFields = null;
-    private ValidatorInterface $validator;
     private TranslatorInterface $translator;
+    private PolicyForm $form;
 
     public function __construct(
         BotApi $bot,
         EntityManager $entityManager,
-        ValidatorInterface $validator,
         TranslatorInterface $translator,
+        PolicyForm $form
     ) {
         $this->bot = $bot;
         $this->entityManager = $entityManager;
-        $this->validator = $validator;
         $this->translator = $translator;
+        $this->form = $form;
     }
 
     /**
@@ -49,7 +46,7 @@ class AddCallbackHandler extends CallbackHandler
      */
     public function handle(): void
     {
-        $query = $this->getQuery();
+        $query = $this->getCallbackQuery();
         $chat = $query->getMessage()->getChat();
         $userRepository = $this->entityManager->getRepository(User::class);
         /** @var ?User $user */
@@ -58,8 +55,7 @@ class AddCallbackHandler extends CallbackHandler
             $user = $this->createUser($query);
         }
         $this->setUserAction($user, $query);
-        $firstFieldName = $this->policyFields[0];
-        $responseMessage = $this->messagePrefix . $firstFieldName;
+        $responseMessage = $this->handleRequest();
         $this->bot->sendMessage(
             $chat->getId(),
             $this->translator->trans($responseMessage)
@@ -74,12 +70,11 @@ class AddCallbackHandler extends CallbackHandler
     {
         parent::textHandle();
         try {
-            $this->checkRequest();
-            $responseMessage = $this->processField();
-            if ($this->isLastFieldRequest()) {
+            $responseMessage = $this->handleRequest();
+            if ($this->form->isLastFieldRequest()) {
                 $policy = $this->addPolicy($this->getMessageText());
                 $responseMessage = $this->translator->trans(
-                    $this->messagePrefix . "success",
+                    "emias.policy.add.success",
                     ['%police_name%' => $policy->getName()]
                 );
             }
@@ -97,24 +92,6 @@ class AddCallbackHandler extends CallbackHandler
             $this->getUpdate()->getMessage()->getChat()->getId(),
             $responseMessage
         );
-    }
-
-    /**
-     * @return string
-     * @throws ValidationFailedException
-     */
-    private function processField(): string
-    {
-        $filledPolicyFields = $this->getCountFilledPolicyFields();
-        $fieldName = $this->policyFields[$filledPolicyFields];
-        $value = $this->getMessageText();
-        $errors = $this->validator->validatePropertyValue(Policy::class, $fieldName, $value);
-        $hasError = count($errors) > 0;
-        if ($hasError) {
-            throw new ValidationFailedException($value, $errors);
-        }
-
-        return $this->getMessageField();
     }
 
 
@@ -197,58 +174,18 @@ class AddCallbackHandler extends CallbackHandler
         return $this->getUpdate()->getMessage()->getText();
     }
 
-    /**
-     * @throws UnexpectedRequestException
-     */
-    private function checkRequest()
-    {
-        $allPolicyFields = count($this->policyFields);
-        $filledPolicyFields = $this->getCountFilledPolicyFields();
-        if ($filledPolicyFields >= $allPolicyFields) {
-            throw new UnexpectedRequestException();
-        }
-    }
-
-    /**
-     * @return int
-     */
-    private function getCountFilledPolicyFields(): int
-    {
-        if (!isset($this->countFilledPolicyFields)) {
-            $user = $this->getUser();
-            /** @var MessageRepository $messageRepository */
-            $messageRepository = $this->entityManager->getRepository(Message::class);
-            $this->countFilledPolicyFields = $messageRepository->countLastAction($user);
-        }
-
-        return $this->countFilledPolicyFields;
-    }
-
-    private function getMessageField(): string
-    {
-        if ($this->isLastFieldRequest()) {
-            return "";
-        }
-
-        $filledPolicyFields = $this->getCountFilledPolicyFields();
-        $messageField = $this->policyFields[$filledPolicyFields + 1];
-
-        return $this->translator->trans($this->messagePrefix . $messageField);
-    }
-
-    private function isLastFieldRequest(): bool
-    {
-        $filledPolicyFields = $this->getCountFilledPolicyFields();
-        $allPolicyFields = count($this->policyFields);
-
-        return $filledPolicyFields + 1 === $allPolicyFields;
-    }
-
     private function getUser(): User
     {
         $chat = $this->getUpdate()->getMessage()->getChat();
         $userRepository = $this->entityManager->getRepository(User::class);
 
         return $userRepository->find($chat->getId());
+    }
+
+    private function handleRequest(): string
+    {
+        return $this->form->setRequest($this->getUpdate())
+            ->validate()
+            ->handleRequest();
     }
 }

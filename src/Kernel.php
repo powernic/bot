@@ -2,13 +2,6 @@
 
 namespace Powernic\Bot;
 
-use Closure;
-use Doctrine\ORM\EntityManager;
-use Powernic\Bot\CallbackHandler\CallbackHandlerLoader;
-use Powernic\Bot\Framework\DependencyInjection\CallbackHandlerPass;
-use Powernic\Bot\Framework\DependencyInjection\CommandHandlerPass;
-use Powernic\Bot\Framework\Doctrine\EntityManagerFactory;
-use Powernic\Bot\Framework\TextHandler\CallbackTextHandler;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\AbstractConfigurator;
@@ -16,9 +9,6 @@ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigura
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader as ContainerPhpFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Kernel as BaseKernel;
-
-use TelegramBot\Api\BotApi;
-use TelegramBot\Api\Client;
 
 use function dirname;
 
@@ -120,35 +110,6 @@ final class Kernel extends BaseKernel
             }
 
             $container->setAlias($kernelClass, 'kernel')->setPublic(true);
-            $container->addCompilerPass(new CommandHandlerPass());
-            $container->addCompilerPass(new CallbackHandlerPass());
-            if (!$container->hasDefinition(Client::class)) {
-                $container->register(Client::class, Client::class)
-                    ->setPublic(true)
-                    ->setArgument('$token', '%env(TOKEN)%');
-            }
-            if (!$container->hasDefinition(BotApi::class)) {
-                $container->register(BotApi::class, BotApi::class)
-                    ->setPublic(true)
-                    ->setArgument('$token', '%env(TOKEN)%');
-            }
-            if (!$container->hasDefinition(EntityManager::class)) {
-                $container->register(EntityManager::class, EntityManager::class)
-                    ->setPublic(true)
-                    ->setFactory([EntityManagerFactory::class, 'create'])
-                    ->setArgument('$url', '%env(DATABASE_URL)%');
-            }
-            if (!$container->hasDefinition(CallbackTextHandler::class)) {
-                $container->register(CallbackTextHandler::class, CallbackTextHandler::class)
-                    ->setPublic(true)
-                    ->setArguments(
-                        [
-                            new Reference(EntityManager::class),
-                            new Reference(BotApi::class),
-                            new Reference(CallbackHandlerLoader::class),
-                        ]
-                    );
-            }
         });
     }
 }

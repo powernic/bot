@@ -3,7 +3,8 @@
     "require-dev": {
         "squizlabs/php_codesniffer": "*",
         "phpmd/phpmd": "*",
-        "phpstan/phpstan-symfony": "*"
+        "phpstan/phpstan-symfony": "*",
+        "symplify/config-transformer": "^9.4"
     },
     "autoload": {
         "psr-4": {

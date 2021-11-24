@@ -50,7 +50,7 @@ class Policy
     private $name;
 
     /**
-     * @ManyToOne(targetEntity=Powernic\Bot\Entity\Chat\User::class, inversedBy="policies")
+     * @ManyToOne(targetEntity=Powernic\Bot\Chat\Entity\User::class, inversedBy="policies")
      */
     private $user;
 
@@ -66,9 +66,9 @@ class Policy
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getCode(): int
+    public function getCode(): string
     {
         return $this->code;
     }

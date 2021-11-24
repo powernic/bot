@@ -1,9 +1,9 @@
 <?php
 
 namespace Powernic\Bot\Framework\DependencyInjection;
-
-use Powernic\Bot\CommandHandler\CommandHandlerInterface;
-use Powernic\Bot\CommandHandler\CommandHandlerLoader;
+ 
+use Powernic\Bot\Framework\Handler\Command\CommandHandlerLoader;
+use Powernic\Bot\Framework\Handler\HandlerInterface;
 use ReflectionException;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
 use Symfony\Component\DependencyInjection\Compiler\ServiceLocatorTagPass;
@@ -39,13 +39,13 @@ class CommandHandlerPass implements CompilerPassInterface
                         sprintf('Class "%s" used for service "%s" cannot be found.', $class, $id)
                     );
                 }
-                if (!$r->implementsInterface(CommandHandlerInterface::class)) {
+                if (!$r->implementsInterface(HandlerInterface::class)) {
                     throw new InvalidArgumentException(
                         sprintf(
                             'The service "%s" tagged "%s" must be implements interface of "%s".',
                             $id,
                             $this->commandTag,
-                            CommandHandlerInterface::class
+                            HandlerInterface::class
                         )
                     );
                 }
@@ -58,7 +58,8 @@ class CommandHandlerPass implements CompilerPassInterface
         }
 
         $container
-            ->register(CommandHandlerLoader::class, CommandHandlerLoader::class)
+            ->register('handler.command.loader', CommandHandlerLoader::class)
+            ->setPublic(true)
             ->setArguments([ServiceLocatorTagPass::register($container, $lazyCommandRefs), $lazyCommandMap]);
     }
 }
