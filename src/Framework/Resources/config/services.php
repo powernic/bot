@@ -1,10 +1,12 @@
 <?php
 
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Powernic\Bot\Framework\Doctrine\EntityManagerFactory;
+use Powernic\Bot\Framework\Doctrine\Registry;
 use Powernic\Bot\Framework\Form\FormFactory;
 use Powernic\Bot\Framework\Form\FormRegistry;
 use Powernic\Bot\Framework\Handler\Resolver\CallbackHandlerResolver;
@@ -19,7 +21,6 @@ use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Client;
 
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\service_locator;
 
 return static function (ContainerConfigurator $container) {
     $container->services()
@@ -82,7 +83,17 @@ return static function (ContainerConfigurator $container) {
                 service(BotApi::class),
                 service('handler.callback.loader'),
                 ])
-        ->set(ManagerRegistry::class, ManagerRegistry::class)
+        ->set('doctrine.connection', Connection::class)
+            ->public()
+
+        ->set(ManagerRegistry::class, Registry::class)
+            ->args([
+                service("service_container"),
+                [],
+                [EntityManager::class],
+                "",
+                EntityManager::class
+            ])
         ->alias('doctrine', ManagerRegistry::class)
         ->set('doctrine.orm.container_repository_factory', ContainerRepositoryFactory::class)
             ->args([service(ServiceLocator::class)]);

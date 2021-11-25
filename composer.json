@@ -3,8 +3,7 @@
     "require-dev": {
         "squizlabs/php_codesniffer": "*",
         "phpmd/phpmd": "*",
-        "phpstan/phpstan-symfony": "*",
-        "symplify/config-transformer": "^9.4"
+        "phpstan/phpstan-symfony": "*"
     },
     "autoload": {
         "psr-4": {
@@ -32,6 +31,8 @@
         "symfony/translation": "^5.3",
         "symfony/http-kernel": "^5.3",
         "symfony/event-dispatcher": "^5.3",
-        "symfony/finder": "^5.3"
+        "symfony/finder": "^5.3",
+        "symfony/doctrine-bridge": "^5.3",
+        "ocramius/proxy-manager": "^1.0"
     }
 }
