@@ -15,12 +15,15 @@ class CallbackHandlerResolver extends HandlerResolver
             $this->client->callbackQuery(
                 function (CallbackQuery $callbackQuery) use ($callbackHandlerLoader, $callbacks) {
                     foreach ($callbacks as $callbackId => $callbackHandler) {
+                        $route = $callbackQuery->getData();
                         if (
-                            $callbackId === $callbackQuery->getData()
-                            || $this->isValidHandlerParameters($callbackId, $callbackQuery->getData())
+                            $callbackId === $route
+                            || $this->isValidHandlerParameters($callbackId, $route)
                         ) {
                             $this->setHandler(
-                                $callbackHandlerLoader->get($callbackId)->setCallbackQuery($callbackQuery)
+                                $callbackHandlerLoader->get($callbackId)->setRoute($route)->setMessage(
+                                    $callbackQuery->getMessage()
+                                )
                             );
                             break;
                         }
@@ -28,17 +31,5 @@ class CallbackHandlerResolver extends HandlerResolver
                 }
             );
         }
-    }
-
-    private function isValidHandlerParameters(string $callbackMask, string $data): bool
-    {
-        if (preg_match('/({.*?})/', $callbackMask)) {
-            $mask = preg_replace('/{.*?}/', '(\d+?)', $callbackMask);
-            if (preg_match('/^' . $mask . '$/', $data)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

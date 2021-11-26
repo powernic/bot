@@ -6,29 +6,37 @@ use Powernic\Bot\Emias\Policy\Entity\Policy;
 use Powernic\Bot\Framework\Exception\UnexpectedRequestException;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use TelegramBot\Api\Types\Message;
 use TelegramBot\Api\Types\Update;
 
 abstract class Form
 {
     protected FieldCollection $fieldCollection;
-    protected Update $update;
     protected ?int $countFilledFields = null;
     private ValidatorInterface $validator;
+    private string $entityClass;
+    private Message $message;
+    private bool $isFirstFieldRequest;
 
+    public function __construct(ValidatorInterface $validator, string $entityClass)
+    {
+        $this->validator = $validator;
+        $this->entityClass = $entityClass;
+    }
 
     public function handleRequest(): string
     {
-        $countfilledFields = $this->getCountFilledFields();
-        $field = $this->fieldCollection[$countfilledFields];
-        $value = $this->getMessageText();
-        $errors = $this->validator->validatePropertyValue(Policy::class, $field->getName(), $value);
+        $countFilledFields = $this->getCountFilledFields();
+        $field = $this->fieldCollection->get($countFilledFields);
+        $value = $this->message->getText();
+        $errors = $this->validator->validatePropertyValue($this->entityClass, $field->getName(), $value);
         $hasError = count($errors) > 0;
         if ($hasError) {
             throw new ValidationFailedException($value, $errors);
         }
 
         return $this->getFieldMessage();
-    } 
+    }
 
     /**
      * @return int
@@ -37,12 +45,11 @@ abstract class Form
 
     abstract protected function configureFields(FieldCollection $fieldCollection): void;
 
-    abstract protected function configureForm(FieldCollection $fieldCollection): void;
 
-
-    public function setRequest(Update $update): self
+    public function setRequest(Message $message, bool $isFirstFieldRequest = false): self
     {
-        $this->update = $update;
+        $this->message = $message;
+        $this->isFirstFieldRequest = $isFirstFieldRequest;
         $this->fieldCollection = new FieldCollection();
         $this->configureFields($this->fieldCollection);
 
@@ -63,19 +70,6 @@ abstract class Form
         return $this;
     }
 
-    /**
-     * @return Update
-     */
-    public function getUpdate(): Update
-    {
-        return $this->update;
-    }
-
-    protected function getMessageText(): string
-    {
-        return $this->getUpdate()->getMessage()->getText();
-    }
-
     public function isLastFieldRequest(): bool
     {
         $countAllFields = $this->fieldCollection->count();
@@ -84,6 +78,10 @@ abstract class Form
         return $countFilledFields + 1 === $countAllFields;
     }
 
+    public function isFirstFieldRequest(): bool
+    {
+        return $this->isFirstFieldRequest;
+    }
 
     protected function getFieldMessage(): string
     {
@@ -91,9 +89,21 @@ abstract class Form
             return "";
         }
 
+        if ($this->isFirstFieldRequest()) {
+            return $this->fieldCollection->get(0)->getMessage();
+        }
+
         $countFilledFields = $this->getCountFilledFields();
-        $field = $this->fieldCollection[$countFilledFields + 1];
+        $field = $this->fieldCollection->get($countFilledFields + 1);
 
         return $field->getMessage();
+    }
+
+    /**
+     * @return Message
+     */
+    public function getMessage(): Message
+    {
+        return $this->message;
     }
 }

@@ -3,6 +3,8 @@
 namespace Powernic\Bot\Framework\Handler\Callback;
 
 use Powernic\Bot\Framework\Handler\AvailableCallbackQueryInterface;
+use Powernic\Bot\Framework\Handler\AvailableMessageInterface;
+use Powernic\Bot\Framework\Handler\AvailableRouteInterface;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -25,11 +27,11 @@ class CallbackHandlerLoader implements ContainerInterface
 
     /**
      * @param string $id
-     * @return AvailableCallbackQueryInterface
+     * @return CallbackHandler
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function get(string $id): AvailableCallbackQueryInterface
+    public function get(string $id): CallbackHandler
     {
         if (!$this->has($id)) {
             throw new CommandNotFoundException(sprintf('Command Handler "%s" does not exist.', $id));

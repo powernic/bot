@@ -2,6 +2,8 @@
 
 namespace Powernic\Bot\Framework\Form;
 
+use Psr\Container\ContainerInterface;
+
 class FieldCollection
 {
     /**
@@ -19,5 +21,15 @@ class FieldCollection
     public function count(): int
     {
         return count($this->fields);
+    }
+
+    public function get(int $index): Field
+    {
+        return $this->fields[$index];
+    }
+
+    public function has(int $index): bool
+    {
+        return isset($this->fields[$index]);
     }
 }

@@ -10,9 +10,10 @@ use Powernic\Bot\Framework\Doctrine\Registry;
 use Powernic\Bot\Framework\Form\FormFactory;
 use Powernic\Bot\Framework\Form\FormRegistry;
 use Powernic\Bot\Framework\Handler\Resolver\CallbackHandlerResolver;
+use Powernic\Bot\Framework\Handler\Resolver\TextHandlerResolver;
 use Powernic\Bot\Framework\Handler\Resolver\CommandHandlerResolver;
 use Powernic\Bot\Framework\Handler\Resolver\ContainerHandlerResolver;
-use Powernic\Bot\Framework\Handler\Resolver\TextHandlerResolver;
+use Powernic\Bot\Framework\Handler\Resolver\TextHandlerResolverInterface;
 use Powernic\Bot\Framework\Handler\Text\CallbackTextHandler;
 use Powernic\Bot\Framework\Repository\ContainerRepositoryFactory;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
@@ -27,10 +28,6 @@ return static function (ContainerConfigurator $container) {
         ->set(Client::class, Client::class)
             ->public()
             ->arg('$token', '%env(TOKEN)%')
-        ->set('form.registry', FormRegistry::class)
-        ->set('form.factory', FormFactory::class)
-            ->public()
-            ->args([service('form.registry')])
         ->set('handler_resolver.callback', CallbackHandlerResolver::class)
             ->args(
                 [
@@ -45,7 +42,7 @@ return static function (ContainerConfigurator $container) {
                     service(Client::class),
                 ]
             )
-        ->set('handler_resolver.text', TextHandlerResolver::class)
+        ->set('handler_resolver.text.callback', TextHandlerResolver::class)
             ->args(
                 [
                     service('service_container'),
@@ -59,7 +56,7 @@ return static function (ContainerConfigurator $container) {
                     [
                         service('handler_resolver.callback'),
                         service('handler_resolver.command'),
-                        service('handler_resolver.text'),
+                        service('handler_resolver.text.callback'),
                         ]
                 ]
             )
@@ -76,13 +73,6 @@ return static function (ContainerConfigurator $container) {
             ->factory([EntityManagerFactory::class, 'create'])
             ->arg('$url', '%env(DATABASE_URL)%')
         ->alias(EntityManagerInterface::class, EntityManager::class)
-        ->set('handler.callback.text', CallbackTextHandler::class)
-            ->public()
-            ->args([
-                service(EntityManager::class),
-                service(BotApi::class),
-                service('handler.callback.loader'),
-                ])
         ->set('doctrine.connection', Connection::class)
             ->public()
 

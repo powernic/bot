@@ -6,5 +6,5 @@ use TelegramBot\Api\Types\Message;
 
 interface AvailableMessageInterface
 {
-    public function setMessage(Message $message): HandlerInterface;
+    public function setMessage(Message $message): self;
 }

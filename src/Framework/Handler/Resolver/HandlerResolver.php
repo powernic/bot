@@ -37,4 +37,16 @@ abstract class HandlerResolver
     {
         $this->handler = $handler;
     }
+
+    protected function isValidHandlerParameters(string $callbackMask, string $route): bool
+    {
+        if (preg_match('/({.*?})/', $callbackMask)) {
+            $mask = preg_replace('/{.*?}/', '(\d+?)', $callbackMask);
+            if (preg_match('/^'.$mask.'$/', $route)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
