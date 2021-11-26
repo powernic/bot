@@ -43,7 +43,7 @@ class ShowCallbackHandler extends CallbackHandler
             $responseMessage = $this->translator->trans("exception.policy.not_found");
         }
         $this->bot->sendMessage(
-            $this->callbackQuery->getMessage()->getChat()->getId(),
+            $this->message->getChat()->getId(),
             $responseMessage,
             null,
             false,

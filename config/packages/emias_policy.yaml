@@ -11,6 +11,9 @@ services:
 
   Powernic\Bot\Emias\Policy\Form\PolicyForm:
 
+  Powernic\Bot\Emias\Policy\Service\:
+    resource: '../../src/Emias/Policy/Service/*'
+
   app.emias.policy:
     class: Powernic\Bot\Emias\Policy\CommandHandler\EmiasPolicyCommandHandler
     tags:
@@ -21,6 +24,11 @@ services:
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiaspolicy:add' }
 
+  app.emias.policy.add.text:
+    class: Powernic\Bot\Emias\Policy\TextHandler\AddTextHandler
+    tags:
+      - { name: 'app.text_handler', 'action': 'emiaspolicy:add' }
+
   app.emias.policy.show:
     class: Powernic\Bot\Emias\Policy\CallbackHandler\ShowCallbackHandler
     tags:
@@ -30,3 +38,8 @@ services:
     class: Powernic\Bot\Emias\Policy\CallbackHandler\EditCallbackHandler
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiaspolicy:edit:{id}' }
+
+  app.emias.policy.edit.text:
+    class: Powernic\Bot\Emias\Policy\TextHandler\EditTextHandler
+    tags:
+      - { name: 'app.text_handler', 'action': 'emiaspolicy:edit:{id}' }

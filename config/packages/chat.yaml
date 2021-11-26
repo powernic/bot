@@ -1,0 +1,10 @@
+services:
+  _defaults:
+    autowire: true
+
+  handler.resolver.text:
+    public: true
+    class: Powernic\Bot\Chat\Handler\TextHandlerResolver
+
+  Powernic\Bot\Chat\Service\:
+    resource: '../../src/Chat/Service/*'
