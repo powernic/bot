@@ -2,11 +2,8 @@
 
 namespace Powernic\Bot\Emias\Policy\CallbackHandler;
 
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Powernic\Bot\Emias\Policy\Entity\Policy;
+use Doctrine\ORM\EntityNotFoundException;
 use Powernic\Bot\Emias\Policy\Service\PolicyService;
-use Powernic\Bot\Framework\Exception\UnexpectedRequestException;
 use Powernic\Bot\Framework\Handler\Callback\CallbackHandler;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use TelegramBot\Api\BotApi;
@@ -31,15 +28,13 @@ class RemoveCallbackHandler extends CallbackHandler
         $policyId = (int)$this->getParameter("id");
         try {
             $policy = $this->policyService->removePolicy($policyId, $userId);
-        } catch (OptimisticLockException $e) {
-        } catch (ORMException $e) {
-        }
-        $this->bot->sendMessage(
-            $userId,
-            $this->translator->trans(
+            $responseMessage = $this->translator->trans(
                 'emias.policy.remove.success',
                 ['%police_name%' => $policy->getName()]
-            )
-        );
+            );
+        } catch (EntityNotFoundException $e) {
+            $responseMessage = $this->translator->trans('exception.policy.remove');
+        }
+        $this->bot->sendMessage($userId, $responseMessage);
     }
 }
