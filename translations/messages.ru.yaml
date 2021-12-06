@@ -4,6 +4,7 @@ exception:
       policy: "Не удается добавить полис"
       message: "Не удается сохранить данные полиса"
     not_found: "Такого полиса не существует"
+    remove: "Этого полиса больше не сущестсвует"
   unexpected:
     request: "Вы батенька, что-то не то делаете!"
 validator:
@@ -11,6 +12,11 @@ validator:
     code: "Номер полиса должен иметь длину {{ limit }} символов"
     date: "Дата указана неверно"
 emias:
+  subscription:
+    new_schedule:  |
+      Появилась запись к: %speciality%
+      на %date_time%
+      %address%
   policy:
     edit:
       info: |
@@ -26,3 +32,5 @@ emias:
       code: "Номер полиса:"
       date: "Дата рождения в формате Год-Месяц-День, например: (2020-03-30)"
       success: 'Полис "%police_name%" успешно добавлен!'
+    remove:
+      success: 'Полис "%police_name%" удален!'

@@ -3,11 +3,9 @@
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
-use Powernic\Bot\Application;
 use Powernic\Bot\Kernel;
-use Symfony\Component\DependencyInjection\Container;
 
-require __DIR__ . '/../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 $kernel = new Kernel('dev', true);
 $kernel->boot();
 $container = $kernel->getContainer();

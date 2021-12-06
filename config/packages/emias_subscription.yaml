@@ -1,1 +1,75 @@
 services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  Powernic\Bot\Emias\Subscription\Service\:
+    resource: '../../src/Emias/Subscription/Service/*'
+
+  Powernic\Bot\Emias\Subscription\Doctor\Service\:
+    resource: '../../src/Emias/Subscription/Doctor/Service/*'
+
+  Powernic\Bot\Emias\Subscription\Doctor\Repository\:
+    resource: '../../src/Emias/Subscription/Doctor/Repository/*'
+
+  app.emias.sub:
+    class: Powernic\Bot\Emias\Subscription\CommandHandler\EmiasSubscriptionCommandHandler
+    tags:
+      - { name: 'app.command_handler', 'command': 'emiassub' }
+
+  app.emias.sub.type:
+    class: Powernic\Bot\Emias\Subscription\CallbackHandler\TypeCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}' }
+
+  app.emias.sub.receipt:
+    class: Powernic\Bot\Emias\Subscription\Receipt\CallbackHandler\ReceiptSubscriptionCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:receipt' }
+
+  app.emias.sub.doctor:
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\ConcreteSpecialityDoctorSubscriptionCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor' }
+
+  app.emias.sub.doctor.type:
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\TypeDoctorSubscriptionCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}' }
+
+  app.emias.sub.doctor.alldoc:
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\AllDoctorSubscriptionCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:alldoc' }
+
+
+  app.emias.sub.doctor.alldoc.allday:
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\AllDayCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:alldoc:allday' }
+
+  app.emias.sub.doctor.onedoc:
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\ConcreteDoctorSubscriptionCallbackHandler 
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc' }
+
+
+    # app.emias.sub.doctor.onedoc.type:
+    #   class:
+    #   tags:
+    #     - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:type' }
+    #
+    # app.emias.sub.doctor.onedoc.allday:
+    #   class:
+    #   tags:
+    #     - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:allday' }
+    #
+    # app.emias.sub.doctor.onedoc.oneday:
+    #   class:
+    #   tags:
+    #     - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:oneday' }
+    #
+    # app.emias.sub.doctor.onedoc.oneday.text:
+    #   class:
+    #   tags:
+    #     - { name: 'app.callback_handler', 'action': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:oneday' }

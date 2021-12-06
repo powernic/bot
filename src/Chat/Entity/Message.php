@@ -12,7 +12,7 @@ use Doctrine\ORM\Mapping\Table;
 use Powernic\Bot\Chat\Entity\User;
 
 /**
- * @Entity(repositoryClass="Powernic\Bot\Repository\Chat\MessageRepository")
+ * @Entity(repositoryClass="Powernic\Bot\Chat\Repository\MessageRepository")
  * @Table(name="chat_message")
  **/
 class Message

@@ -3,11 +3,13 @@
 namespace Powernic\Bot\Emias\Policy\Service;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityNotFoundException;
 use Exception;
 use Powernic\Bot\Chat\Repository\MessageRepository;
 use Powernic\Bot\Chat\Repository\UserRepository;
 use Powernic\Bot\Emias\Policy\Entity\Policy;
 use Powernic\Bot\Emias\Policy\Repository\PolicyRepository;
+use Powernic\Bot\Framework\Exception\UnexpectedRequestException;
 
 final class PolicyService
 {
@@ -48,6 +50,7 @@ final class PolicyService
                 ->setCode($code)
                 ->setDate($date);
             $this->entityManager->persist($policy);
+            $this->entityManager->flush();
 
             return $policy;
         } catch (Exception) {
@@ -58,7 +61,8 @@ final class PolicyService
     /**
      * @throws Exception
      */
-    public function editPolicy(int $policyId, int $userId, string $date){
+    public function editPolicy(int $policyId, int $userId, string $date)
+    {
         try {
             $user = $this->userRepository->find($userId);
             $messages = $this->messageRepository->getAllByLastAction($user);
@@ -70,10 +74,28 @@ final class PolicyService
                 ->setCode($code)
                 ->setDate($date);
             $this->entityManager->persist($policy);
+            $this->entityManager->flush();
 
             return $policy;
         } catch (Exception) {
             throw new Exception("exception.policy.edit.policy");
         }
+    }
+
+    /**
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\EntityNotFoundException
+     * @throws \Doctrine\ORM\ORMException
+     */
+    public function removePolicy(int $policyId, int $userId): Policy
+    {
+        $policy = $this->policyRepository->findOneBy(['id' => $policyId, 'user' => $userId]);
+        if (!$policy) {
+            throw new EntityNotFoundException();
+        }
+        $this->entityManager->remove($policy);
+        $this->entityManager->flush();
+
+        return $policy;
     }
 }

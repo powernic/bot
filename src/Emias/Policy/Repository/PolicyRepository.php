@@ -12,4 +12,13 @@ final class PolicyRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Policy::class);
     }
+
+    /**
+     * @param int $userId
+     * @return Policy[]
+     */
+    public function findByUserId(int $userId): array
+    {
+        return $this->findBy(['user' => $userId]);
+    }
 }

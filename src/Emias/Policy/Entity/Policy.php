@@ -3,14 +3,17 @@
 namespace Powernic\Bot\Emias\Policy\Entity;
 
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use Exception;
 use Powernic\Bot\Chat\Entity\User;
+use Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
@@ -50,15 +53,25 @@ class Policy
     private $name;
 
     /**
-     * @ManyToOne(targetEntity=Powernic\Bot\Chat\Entity\User::class, inversedBy="policies")
+     * @ManyToOne(targetEntity=\Powernic\Bot\Chat\Entity\User::class, inversedBy="policies")
      */
     private $user;
 
     /**
-     * @param int $code
+     * @OneToMany(targetEntity=\Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription::class, mappedBy="policy")
+     */
+    private $specialitySubscriptions;
+
+    public function __construct()
+    {
+        $this->specialitySubscriptions = new ArrayCollection();
+    }
+
+    /**
+     * @param string $code
      * @return Policy
      */
-    public function setCode(int $code): self
+    public function setCode(string $code): self
     {
         $this->code = $code;
 
@@ -132,10 +145,18 @@ class Policy
      * @param User $user
      * @return Policy
      */
-    public function setUser(User $user):self
+    public function setUser(User $user): self
     {
         $this->user = $user;
 
         return $this;
+    }
+
+    /**
+     * @return ArrayCollection|SpecialitySubscription[]
+     */
+    public function getSpecialitySubscriptions(): ArrayCollection
+    {
+        return $this->specialitySubscriptions;
     }
 }

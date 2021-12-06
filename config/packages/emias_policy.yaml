@@ -3,6 +3,7 @@ services:
     autowire: true
     autoconfigure: true
 
+
   Powernic\Bot\Emias\Policy\Repository\:
     resource: '../../src/Emias/Policy/Repository/*'
 
@@ -23,6 +24,11 @@ services:
     class: Powernic\Bot\Emias\Policy\CallbackHandler\AddCallbackHandler
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiaspolicy:add' }
+
+  app.emias.policy.remove:
+    class: Powernic\Bot\Emias\Policy\CallbackHandler\RemoveCallbackHandler
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiaspolicy:remove:{id}' }
 
   app.emias.policy.add.text:
     class: Powernic\Bot\Emias\Policy\TextHandler\AddTextHandler

@@ -54,7 +54,7 @@ class User
     private $messages;
 
     /**
-     * @OneToMany(targetEntity=Powernic\Bot\Emias\Policy\Entity\Policy::class, mappedBy="user")
+     * @OneToMany(targetEntity=\Powernic\Bot\Emias\Policy\Entity\Policy::class, mappedBy="user")
      */
     private $policies;
 

@@ -1,0 +1,10 @@
+#!/usr/bin/env php
+<?php
+
+use Powernic\Bot\Framework\Console\Application;
+use Powernic\Bot\Kernel;
+
+require __DIR__ . '/../vendor/autoload.php';
+$kernel = new Kernel('dev', true); 
+$app = new Application($kernel);
+$app->run();
