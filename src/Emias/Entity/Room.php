@@ -127,16 +127,16 @@ class Room
     /**
      * @return \DateTimeImmutable
      */
-    public function getAvailabilityDate(): \DateTimeImmutable|string
+    public function getAvailabilityDate(): \DateTimeImmutable
     {
         return $this->availabilityDate;
     }
 
     /**
-     * @param \DateTimeImmutable $availabilityDate
+     * @param string $availabilityDate
      * @return Room
      */
-    public function setAvailabilityDate(\DateTimeImmutable|string $availabilityDate): Room
+    public function setAvailabilityDate(string $availabilityDate): Room
     {
         $this->availabilityDate = $availabilityDate;
         return $this;

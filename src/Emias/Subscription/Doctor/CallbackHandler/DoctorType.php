@@ -6,7 +6,7 @@ use Powernic\Bot\Framework\Handler\Callback\CallbackHandler;
 use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
-class TypeDoctorSubscriptionCallbackHandler extends CallbackHandler
+class DoctorType extends CallbackHandler
 {
     /**
      * @var \TelegramBot\Api\BotApi

@@ -2,13 +2,16 @@
 
 namespace Powernic\Bot\Emias\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use phpDocumentor\Reflection\Types\Integer;
+use Powernic\Bot\Emias\Subscription\Doctor\Entity\DoctorSubscription;
 
 /**
  * @Entity()
@@ -16,16 +19,13 @@ use phpDocumentor\Reflection\Types\Integer;
  **/
 class Doctor
 {
-    /**
-     * @var string
-     * @Column(type="string")
-     */
     private string $specialityName;
 
     private int $specialityId;
 
     /**
-     * @ManyToOne(targetEntity=\Powernic\Bot\Emias\Entity\Speciality::class, inversedBy="doctors")
+     * @ManyToOne(targetEntity=\Powernic\Bot\Emias\Entity\Speciality::class, inversedBy="doctors", cascade={"persist",
+     *     "remove"})
      * @JoinColumn(nullable=true , referencedColumnName="code")
      */
     private ?Speciality $speciality;
@@ -49,9 +49,20 @@ class Doctor
     /**
      * @Id()
      * @var int
-     * @Column(type="integer")
+     * @Column(type="bigint")
      */
     private int $employeeId;
+
+    /**
+     * @OneToMany(targetEntity=\Powernic\Bot\Emias\Subscription\Doctor\Entity\DoctorSubscription::class,
+     *     mappedBy="doctor", cascade={"persist" })
+     */
+    private $doctorSubscriptions;
+
+    public function __construct()
+    {
+        $this->doctorSubscriptions = new ArrayCollection();
+    }
 
     /**
      * @return string
@@ -195,4 +206,30 @@ class Doctor
         $this->speciality = $speciality;
     }
 
+    /**
+     * @param DoctorSubscription $doctorSubscription
+     * @return Doctor
+     */
+    public function addDoctorSubscription(DoctorSubscription $doctorSubscription): self
+    {
+        if (!$this->doctorSubscriptions->contains($doctorSubscription)) {
+            $this->doctorSubscriptions[] = $doctorSubscription;
+            $doctorSubscription->setDoctor($this);
+        }
+        return $this;
+    }
+
+    /**
+     * @param DoctorSubscription $doctorSubscription
+     * @return Doctor
+     */
+    public function removeDoctorSubscription(DoctorSubscription $doctorSubscription): self
+    {
+        if (!$this->doctorSubscriptions->removeElement($doctorSubscription)) {
+            if ($doctorSubscription->getDoctor() === $this) {
+                $doctorSubscription->setDoctor(null);
+            }
+        }
+        return $this;
+    }
 }

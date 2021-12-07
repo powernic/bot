@@ -10,6 +10,7 @@ use Graze\GuzzleHttp\JsonRpc\Exception\RequestException;
 use JsonMapper;
 use JsonMapper_Exception;
 use LengthException;
+use Powernic\Bot\Emias\Entity\Doctor;
 use Powernic\Bot\Emias\Entity\DoctorInfo;
 use Powernic\Bot\Emias\Entity\ScheduleInfo;
 use Powernic\Bot\Emias\Entity\Speciality;
@@ -23,18 +24,23 @@ final class EmiasService
     private PolicyRepository $policyRepository;
     private EntityManagerInterface $entityManager;
     private ScheduleInfoService $scheduleInfoService;
+    private SpecialityRepository $specialityRepository;
+    private DoctorService $doctorService;
 
     public function __construct(
         ScheduleInfoService $scheduleInfoService,
         PolicyRepository $policyRepository,
         SpecialityRepository $specialityRepository,
         EntityManagerInterface $entityManager,
+        DoctorService $doctorService,
         string $apiUrl = ''
     ) {
         $this->apiUrl = $apiUrl;
         $this->policyRepository = $policyRepository;
         $this->entityManager = $entityManager;
         $this->scheduleInfoService = $scheduleInfoService;
+        $this->specialityRepository = $specialityRepository;
+        $this->doctorService = $doctorService;
     }
 
     /**
@@ -66,11 +72,11 @@ final class EmiasService
     /**
      * @param int $userId
      * @param int $policyId
-     * @param Speciality $speciality
+     * @param int $specialityId
      * @return DoctorInfo[]
      * @throws JsonMapper_Exception
      */
-    public function getDoctorsInfo(int $userId, int $policyId, Speciality $speciality): array
+    public function getDoctorsInfo(int $userId, int $policyId, int $specialityId): array
     {
         $policy = $this->policyRepository->findOneBy(['user' => $userId, 'id' => $policyId]);
         $client = Client::factory($this->apiUrl, ['rpc_error' => true]);
@@ -80,19 +86,14 @@ final class EmiasService
             [
                 'birthDate' => $policy->getDate()->format("Y-m-d"),
                 "omsNumber" => $policy->getCode(),
-                "specialityId" => $speciality->getCode()
+                "specialityId" => $specialityId
             ]
         );
 
         $message = $client->send($request);
         $rpcResult = json_decode((string)$message->getBody());
         $mapper = new JsonMapper();
-
-        /** @var DoctorInfo[] $doctorInfoCollection */
-        $doctorInfoCollection = $mapper->mapArray($rpcResult->result, [], DoctorInfo::class);
-        $this->saveSpecialities($doctorInfoCollection);
-
-        return $doctorInfoCollection;
+        return $mapper->mapArray($rpcResult->result, [], DoctorInfo::class);
     }
 
     /**
@@ -116,6 +117,30 @@ final class EmiasService
         DateTimeImmutable $targetDate
     ): ScheduleInfo {
         $scheduleInfoCollection = $this->getBatchScheduleInfo($policy, $speciality);
+        return $this->scheduleInfoService->getNearestScheduleInfoInConcreteDay($targetDate, $scheduleInfoCollection);
+    }
+
+    /**
+     * @throws LengthException|JsonMapper_Exception|Exception
+     */
+    public function getNearestConcreteDoctorScheduleInfo(
+        Policy $policy,
+        Speciality $speciality,
+        DateTimeImmutable $targetDate
+    ): ScheduleInfo {
+        $scheduleInfoCollection = $this->getAvailableResourceScheduleInfo($policy, $speciality);
+        return $this->scheduleInfoService->getNearestScheduleInfoInConcreteDay($targetDate, $scheduleInfoCollection);
+    }
+
+    /**
+     * @throws LengthException|JsonMapper_Exception|Exception
+     */
+    public function getNearestDoctorScheduleInfoInConcreteDay(
+        Policy $policy,
+        Speciality $speciality,
+        DateTimeImmutable $targetDate
+    ): ScheduleInfo {
+        $scheduleInfoCollection = $this->getAvailableResourceScheduleInfo($policy, $speciality);
         return $this->scheduleInfoService->getNearestScheduleInfoInConcreteDay($targetDate, $scheduleInfoCollection);
     }
 
@@ -146,6 +171,33 @@ final class EmiasService
     }
 
     /**
+     * @param Policy $policy
+     * @param Speciality $speciality
+     * @return ScheduleInfo[]
+     * @throws LengthException|JsonMapper_Exception|Exception
+     */
+    private function getAvailableResourceScheduleInfo(Policy $policy, Speciality $speciality): array
+    {
+        $client = Client::factory($this->apiUrl, ['rpc_error' => true]);
+        $request = $client->request(
+            1,
+            'getAvailableResourceScheduleInfo',
+            [
+                'birthDate' => $policy->getDate()->format("Y-m-d"),
+                "omsNumber" => $policy->getCode(),
+                "availableResourceId" => $speciality->getCode(),
+                "complexResourceId" => $speciality->getCode(),
+            ]
+        );
+
+        $message = $client->send($request);
+        $rpcResult = json_decode((string)$message->getBody());
+        $mapper = new JsonMapper();
+
+        return $mapper->mapArray($rpcResult->result, [], ScheduleInfo::class);
+    }
+
+    /**
      * @param Speciality[] $specialities
      */
     private function saveSpecialities(array $specialities)
@@ -161,5 +213,4 @@ final class EmiasService
 
         $this->entityManager->flush();
     }
-
 }

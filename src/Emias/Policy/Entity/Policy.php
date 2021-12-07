@@ -13,6 +13,7 @@ use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use Exception;
 use Powernic\Bot\Chat\Entity\User;
+use Powernic\Bot\Emias\Subscription\Doctor\Entity\DoctorSubscription;
 use Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription;
 use Symfony\Component\Validator\Constraints as Assert;
 
@@ -62,9 +63,15 @@ class Policy
      */
     private $specialitySubscriptions;
 
+    /**
+     * @OneToMany(targetEntity=\Powernic\Bot\Emias\Subscription\Doctor\Entity\DoctorSubscription::class, mappedBy="policy")
+     */
+    private $doctorSubscriptions;
+
     public function __construct()
     {
         $this->specialitySubscriptions = new ArrayCollection();
+        $this->doctorSubscriptions = new ArrayCollection();
     }
 
     /**
@@ -158,5 +165,12 @@ class Policy
     public function getSpecialitySubscriptions(): ArrayCollection
     {
         return $this->specialitySubscriptions;
+    }
+    /**
+     * @return ArrayCollection|DoctorSubscription[]
+     */
+    public function getDoctorSubscriptions(): ArrayCollection
+    {
+        return $this->doctorSubscriptions;
     }
 }

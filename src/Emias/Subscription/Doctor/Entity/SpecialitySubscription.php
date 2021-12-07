@@ -20,115 +20,20 @@ use Powernic\Bot\Emias\Policy\Entity\Policy;
  * @Entity()
  * @Table(name="emias_speciality_subscription")
  **/
-class SpecialitySubscription
+class SpecialitySubscription extends Subscription
 {
 
     /**
-     * @Id()
-     * @GeneratedValue(strategy="IDENTITY")
-     * @Column(type="integer")
-     */
-    private string $id;
-
-    /**
-     * @ManyToOne(targetEntity=\Powernic\Bot\Emias\Policy\Entity\Policy::class, inversedBy="specialitySubscription")
-     */
-    private ?Policy $policy;
-
-    /**
-     * @ManyToOne(targetEntity=\Powernic\Bot\Emias\Entity\Speciality::class, inversedBy="doctorSubscriptions")
+     * @ManyToOne(targetEntity=\Powernic\Bot\Emias\Entity\Speciality::class, inversedBy="specialitySubscriptions")
      * @JoinColumn(nullable=true , referencedColumnName="code")
      */
-    private ?Speciality $speciality;
-    /**
-     * @Column(type="datetimetz", name="start_time_interval", nullable="true")
-     */
-    private ?DateTimeImmutable $startTimeInterval;
-    /**
-     * @Column(type="datetimetz", name="end_time_interval", nullable="true")
-     */
-    private ?DateTimeImmutable $endTimeInterval;
+    protected ?Speciality $speciality;
 
     /**
-     * @OneToOne(targetEntity=\Powernic\Bot\Emias\Entity\ScheduleInfo::class, inversedBy="doctorSubscription",
+     * @OneToOne(targetEntity=\Powernic\Bot\Emias\Entity\ScheduleInfo::class, inversedBy="specialitySubscription",
      *     cascade={"persist", "remove"})
      */
-    private ?ScheduleInfo $scheduleInfo;
-
-    /**
-     * @return string
-     */
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param string $id
-     */
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return Policy
-     */
-    public function getPolicy(): Policy
-    {
-        return $this->policy;
-    }
-
-    /**
-     * @param Policy $policy
-     */
-    public function setPolicy(Policy $policy): self
-    {
-        $this->policy = $policy;
-
-        return $this;
-    }
-
-    public function hasTargetTimeInterval(): bool
-    {
-        return isset($this->startTimeInterval);
-    }
-
-    /**
-     * @return ?DateTimeImmutable
-     */
-    public function getStartTimeInterval(): ?DateTimeImmutable
-    {
-        return $this->startTimeInterval;
-    }
-
-    /**
-     * @param ?DateTimeImmutable $startTimeInterval
-     */
-    public function setStartTimeInterval(?DateTimeImmutable $startTimeInterval): self
-    {
-        $this->startTimeInterval = $startTimeInterval;
-
-        return $this;
-    }
-
-    /**
-     * @return ?DateTimeImmutable
-     */
-    public function getEndTimeInterval(): ?DateTimeImmutable
-    {
-        return $this->endTimeInterval;
-    }
-
-    /**
-     * @param ?DateTimeImmutable $endTimeInterval
-     */
-    public function setEndTimeInterval(?DateTimeImmutable $endTimeInterval): self
-    {
-        $this->endTimeInterval = $endTimeInterval;
-
-        return $this;
-    }
+    protected ?ScheduleInfo $scheduleInfo;
 
     /**
      * @param ?Speciality $speciality
@@ -148,25 +53,5 @@ class SpecialitySubscription
     {
         return $this->speciality;
     }
-
-    /**
-     * @param ?ScheduleInfo $scheduleInfo
-     * @return self
-     */
-    public function setScheduleInfo(?ScheduleInfo $scheduleInfo): self
-    {
-        $this->scheduleInfo = $scheduleInfo;
-
-        return $this;
-    }
-
-    /**
-     * @return ?ScheduleInfo
-     */
-    public function getScheduleInfo(): ?ScheduleInfo
-    {
-        return $this->scheduleInfo;
-    }
-
 
 }

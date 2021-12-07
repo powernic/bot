@@ -3,24 +3,26 @@
 namespace Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler;
 
 use Graze\GuzzleHttp\JsonRpc\Exception\RequestException;
-use Powernic\Bot\Emias\Entity\Speciality;
+use Powernic\Bot\Emias\Service\DoctorService;
 use Powernic\Bot\Emias\Service\EmiasService;
 use Powernic\Bot\Framework\Handler\Callback\CallbackHandler;
 use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
-final class ConcreteDoctorSubscriptionCallbackHandler extends CallbackHandler
+final class ConcreteDoctor extends CallbackHandler
 {
     /**
      * @var \TelegramBot\Api\BotApi
      */
     private BotApi $bot;
     private EmiasService $emiasService;
+    private DoctorService $doctorService;
 
-    public function __construct(BotApi $bot, EmiasService $emiasService)
+    public function __construct(BotApi $bot, EmiasService $emiasService, DoctorService $doctorService)
     {
         $this->bot = $bot;
         $this->emiasService = $emiasService;
+        $this->doctorService = $doctorService;
     }
 
     public function handle(): void
@@ -43,22 +45,30 @@ final class ConcreteDoctorSubscriptionCallbackHandler extends CallbackHandler
         );
     }
 
+    /**
+     * @throws \JsonMapper_Exception
+     */
     private function getDoctorButtons(): array
     {
         $buttons = [];
         $userId = $this->message->getChat()->getId();
         $policyId = (int)$this->getParameter("id");
         $specialityId = (int)$this->getParameter("speciality");
-        $specialities = $this->emiasService->getDoctorsInfo(
+        $doctorInfoCollection = $this->emiasService->getDoctorsInfo(
             $userId,
             $policyId,
-            (new Speciality())->setCode($specialityId)
+            $specialityId
         );
-        foreach ($specialities as $speciality) {
+        $this->doctorService->saveDoctors($doctorInfoCollection, $specialityId);
+        foreach ($doctorInfoCollection as $doctorInfo) {
+            $doctor = $doctorInfo->getMainDoctor();
             $buttons [] = [
                 [
-                    'text' => $speciality->getName(),
-                    'callback_data' => 'emiassub:' . $policyId . ':doctor:' . $speciality->getCode(),
+                    'text' => $doctor->getLastName() . " " .
+                        $doctor->getFirstName() . " " .
+                        $doctor->getSecondName(),
+                    'callback_data' => 'emiassub:' . $policyId . ':doctor:' .
+                        $specialityId . ':onedoc:' . $doctor->getEmployeeId(),
                 ],
             ];
         }

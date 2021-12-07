@@ -6,7 +6,7 @@ use Powernic\Bot\Framework\Handler\Callback\CallbackHandler;
 use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
-class AllDoctorSubscriptionCallbackHandler extends CallbackHandler
+class AllDoctorDateType extends CallbackHandler
 {
 
     /**
@@ -38,7 +38,7 @@ class AllDoctorSubscriptionCallbackHandler extends CallbackHandler
     private function getDateTypeButtons(int $policyId, int $speciality)
     {
         $buttons = [];
-        $types = ["all" => "Любой день", 'one' => 'Конкретный день'];
+        $types = ["allday" => "Любой день", 'oneday' => 'Конкретный день'];
         foreach ($types as $type => $label) {
             $buttons [] = [
                 [

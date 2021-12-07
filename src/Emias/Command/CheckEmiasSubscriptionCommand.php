@@ -6,8 +6,10 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\ORMException;
 use Powernic\Bot\Emias\Entity\ScheduleInfo;
 use Powernic\Bot\Emias\Service\EmiasService;
+use Powernic\Bot\Emias\Subscription\Doctor\Entity\DoctorSubscription;
 use Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription;
 use Powernic\Bot\Emias\Subscription\Doctor\Repository\DoctorSubscriptionRepository;
+use Powernic\Bot\Emias\Subscription\Doctor\Repository\SpecialitySubscriptionRepository;
 use Powernic\Bot\Emias\Subscription\Doctor\Service\DoctorSubscriptionService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -23,10 +25,12 @@ class CheckEmiasSubscriptionCommand extends Command
     private EntityManager $entityManager;
     private BotApi $bot;
     private TranslatorInterface $translator;
+    private SpecialitySubscriptionRepository $specialitySubscriptionRepository;
 
     public function __construct(
         EmiasService $emiasService,
         DoctorSubscriptionRepository $doctorSubscriptionRepository,
+        SpecialitySubscriptionRepository $specialitySubscriptionRepository,
         EntityManager $entityManager,
         BotApi $bot,
         TranslatorInterface $translator
@@ -34,9 +38,10 @@ class CheckEmiasSubscriptionCommand extends Command
         $this->emiasService = $emiasService;
         $this->doctorSubscriptionRepository = $doctorSubscriptionRepository;
         $this->entityManager = $entityManager;
-        parent::__construct();
         $this->bot = $bot;
         $this->translator = $translator;
+        $this->specialitySubscriptionRepository = $specialitySubscriptionRepository;
+        parent::__construct();
     }
 
     protected function configure()
@@ -48,31 +53,8 @@ class CheckEmiasSubscriptionCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         try {
-            /** @var SpecialitySubscription[] $specialitySubscriptions */
-            $specialitySubscriptions = $this->doctorSubscriptionRepository->findAll();
-            foreach ($specialitySubscriptions as $specialitySubscription) {
-                if ($specialitySubscription->hasTargetTimeInterval()) {
-                    $nearestSchedule = $this->emiasService->getNearestScheduleInfoInConcreteDay(
-                        $specialitySubscription->getPolicy(),
-                        $specialitySubscription->getSpeciality(),
-                        $specialitySubscription->getStartTimeInterval()
-                    );
-                } else {
-                    $nearestSchedule = $this->emiasService->getNearestScheduleInfo(
-                        $specialitySubscription->getPolicy(),
-                        $specialitySubscription->getSpeciality()
-                    );
-                }
-                $isNewNearestSchedule = true;
-                if ($specialitySubscription->getScheduleInfo()) {
-                    $isNewNearestSchedule = $nearestSchedule->getStartTime() <
-                        $specialitySubscription->getScheduleInfo()->getStartTime();
-                }
-                if ($isNewNearestSchedule) {
-                    $this->onNewNearestSchedule($specialitySubscription, $nearestSchedule);
-                }
-            }
-            $this->entityManager->flush();
+            $this->checkSpecialitySubscriptions();
+            $this->checkDoctorSubscriptions();
         } catch (\JsonMapper_Exception $e) {
             return Command::FAILURE;
         }
@@ -102,5 +84,69 @@ class CheckEmiasSubscriptionCommand extends Command
             ])
 
         );
+    }
+
+    /**
+     * @return void
+     * @throws ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \JsonMapper_Exception
+     */
+    protected function checkSpecialitySubscriptions(): void
+    {
+        /** @var SpecialitySubscription[] $specialitySubscriptions */
+        $specialitySubscriptions = $this->specialitySubscriptionRepository->findAll();
+        foreach ($specialitySubscriptions as $specialitySubscription) {
+            if ($specialitySubscription->hasTargetTimeInterval()) {
+                $nearestSchedule = $this->emiasService->getNearestScheduleInfoInConcreteDay(
+                    $specialitySubscription->getPolicy(),
+                    $specialitySubscription->getSpeciality(),
+                    $specialitySubscription->getStartTimeInterval()
+                );
+            } else {
+                $nearestSchedule = $this->emiasService->getNearestScheduleInfo(
+                    $specialitySubscription->getPolicy(),
+                    $specialitySubscription->getSpeciality()
+                );
+            }
+            $isNewNearestSchedule = true;
+            if ($specialitySubscription->getScheduleInfo()) {
+                $isNewNearestSchedule = $nearestSchedule->getStartTime() <
+                    $specialitySubscription->getScheduleInfo()->getStartTime();
+            }
+            if ($isNewNearestSchedule) {
+                $this->onNewNearestSchedule($specialitySubscription, $nearestSchedule);
+            }
+        }
+        $this->entityManager->flush();
+    }
+
+    private function checkDoctorSubscriptions()
+    {
+        /** @var DoctorSubscription[] $doctorSubscriptions */
+        $doctorSubscriptions = $this->doctorSubscriptionRepository->findAll();
+        foreach ($doctorSubscriptions as $doctorSubscription) {
+            if ($doctorSubscription->hasTargetTimeInterval()) {
+                $nearestSchedule = $this->emiasService->getNearestScheduleInfoInConcreteDay(
+                    $doctorSubscription->getPolicy(),
+                    $doctorSubscription->getSpeciality(),
+                    $doctorSubscription->getStartTimeInterval()
+                );
+            } else {
+                $nearestSchedule = $this->emiasService->getNearestScheduleInfo(
+                    $doctorSubscription->getPolicy(),
+                    $doctorSubscription->getSpeciality()
+                );
+            }
+            $isNewNearestSchedule = true;
+            if ($doctorSubscription->getScheduleInfo()) {
+                $isNewNearestSchedule = $nearestSchedule->getStartTime() <
+                    $doctorSubscription->getScheduleInfo()->getStartTime();
+            }
+            if ($isNewNearestSchedule) {
+                $this->onNewNearestSchedule($doctorSubscription, $nearestSchedule);
+            }
+        }
+        $this->entityManager->flush();
     }
 }

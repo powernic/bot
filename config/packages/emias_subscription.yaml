@@ -28,41 +28,46 @@ services:
       - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:receipt' }
 
   app.emias.sub.doctor:
-    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\ConcreteSpecialityDoctorSubscriptionCallbackHandler
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\ConcreteSpeciality
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor' }
 
   app.emias.sub.doctor.type:
-    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\TypeDoctorSubscriptionCallbackHandler
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\DoctorType
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}' }
 
   app.emias.sub.doctor.alldoc:
-    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\AllDoctorSubscriptionCallbackHandler
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\AllDoctorDateType
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:alldoc' }
 
 
   app.emias.sub.doctor.alldoc.allday:
-    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\AllDayCallbackHandler
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\AllDoctorAllDay
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:alldoc:allday' }
 
+  app.emias.sub.doctor.alldoc.oneday:
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\AllDoctorOneDay
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:alldoc:oneday' }
+
   app.emias.sub.doctor.onedoc:
-    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\ConcreteDoctorSubscriptionCallbackHandler 
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\ConcreteDoctor
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc' }
 
 
-    # app.emias.sub.doctor.onedoc.type:
-    #   class:
-    #   tags:
-    #     - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:type' }
-    #
-    # app.emias.sub.doctor.onedoc.allday:
-    #   class:
-    #   tags:
-    #     - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:allday' }
+  app.emias.sub.doctor.onedoc.type:
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\ConcreteDoctorDateType
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}' }
+
+  app.emias.sub.doctor.onedoc.allday:
+   class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\OneDoctorAllDay
+   tags:
+     - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:allday' }
     #
     # app.emias.sub.doctor.onedoc.oneday:
     #   class:

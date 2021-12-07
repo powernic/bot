@@ -36,12 +36,14 @@ class Speciality
     /**
      * @OneToMany(targetEntity=\Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription::class,
      *     mappedBy="speciality", cascade={"persist" })
+     *
      */
     private $specialitySubscriptions;
 
     /**
      * @OneToMany(targetEntity=\Powernic\Bot\Emias\Entity\Doctor::class,
      *     mappedBy="speciality", cascade={"persist"})
+     * @var Doctor[]
      */
     private $doctors;
 
@@ -153,6 +155,7 @@ class Speciality
         $this->therapeutic = $therapeutic;
     }
 
+
     /**
      * @param SpecialitySubscription $specialitySubscription
      * @return $this
@@ -180,5 +183,6 @@ class Speciality
         }
 
         return $this;
-    }
+    } 
+
 }

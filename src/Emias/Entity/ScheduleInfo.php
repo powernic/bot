@@ -5,11 +5,14 @@ namespace Powernic\Bot\Emias\Entity;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
+use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\Table;
+use Powernic\Bot\Emias\Subscription\Doctor\Entity\DoctorSubscription;
 use Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription;
 
 /**
@@ -18,10 +21,14 @@ use Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription;
  */
 class ScheduleInfo
 {
+
     /**
      * @Id()
-     * @Column(type="string")
+     * @GeneratedValue(strategy="IDENTITY")
+     * @Column(type="integer", name="id")
      */
+    private int $primaryId;
+
     private string $id;
 
     /**
@@ -33,9 +40,9 @@ class ScheduleInfo
      */
     private string $address;
     /**
-     * @Column(type="integer")
+     * @Column(type="string")
      */
-    private int $roomNumber;
+    private string $roomNumber;
     /**
      * @Column(type="datetimetz")
      * @var \DateTimeImmutable
@@ -46,15 +53,18 @@ class ScheduleInfo
      * @var \DateTimeImmutable
      */
     private $endTime;
-    /**
-     * @Column(type="integer")
-     */
+
     private int $appointmentTypeCode;
 
     /**
      * @OneToOne(targetEntity=\Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription::class, mappedBy="scheduleInfo")
      */
     private SpecialitySubscription $specialitySubscription;
+
+    /**
+     * @OneToOne(targetEntity=\Powernic\Bot\Emias\Subscription\Doctor\Entity\doctorSubscription::class, mappedBy="scheduleInfo")
+     */
+    private DoctorSubscription $doctorSubscription;
 
     /**
      * @return string
@@ -108,17 +118,17 @@ class ScheduleInfo
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getRoomNumber(): int
+    public function getRoomNumber(): string
     {
         return $this->roomNumber;
     }
 
     /**
-     * @param int $roomNumber
+     * @param string $roomNumber
      */
-    public function setRoomNumber(int $roomNumber): self
+    public function setRoomNumber(string $roomNumber): self
     {
         $this->roomNumber = $roomNumber;
         return $this;
@@ -182,5 +192,13 @@ class ScheduleInfo
     public function getSpecialitySubscription(): SpecialitySubscription
     {
         return $this->specialitySubscription;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPrimaryId(): int
+    {
+        return $this->primaryId;
     }
 }
