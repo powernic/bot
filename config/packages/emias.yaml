@@ -1,3 +1,6 @@
+parameters:
+  emias.api_url: '%env(EMIAS_API_URL)%'
+
 services:
   _defaults:
     autowire: true
@@ -6,12 +9,9 @@ services:
   Powernic\Bot\Emias\Service\:
     resource: '../../src/Emias/Service/*'
 
+
   Powernic\Bot\Emias\Repository\:
     resource: '../../src/Emias/Repository/*'
-
-  Powernic\Bot\Emias\Service\EmiasService:
-    arguments:
-      $apiUrl : 'https://emias.info/api/new-cls/eim2'
 
   Powernic\Bot\Emias\Command\CheckEmiasSubscriptionCommand:
     tags:

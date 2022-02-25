@@ -9,7 +9,6 @@ use Powernic\Bot\Chat\Repository\MessageRepository;
 use Powernic\Bot\Chat\Repository\UserRepository;
 use Powernic\Bot\Emias\Policy\Entity\Policy;
 use Powernic\Bot\Emias\Policy\Repository\PolicyRepository;
-use Powernic\Bot\Framework\Exception\UnexpectedRequestException;
 
 final class PolicyService
 {
@@ -61,7 +60,7 @@ final class PolicyService
     /**
      * @throws Exception
      */
-    public function editPolicy(int $policyId, int $userId, string $date)
+    public function editPolicy(int $policyId, int $userId, string $date): Policy
     {
         try {
             $user = $this->userRepository->find($userId);

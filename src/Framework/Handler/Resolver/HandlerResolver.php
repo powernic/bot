@@ -40,9 +40,12 @@ abstract class HandlerResolver
 
     protected function isValidHandlerParameters(string $callbackMask, string $route): bool
     {
+        if ($callbackMask == $route) {
+            return true;
+        }
         if (preg_match('/({.*?})/', $callbackMask)) {
             $mask = preg_replace('/{.*?}/', '(\d+?)', $callbackMask);
-            if (preg_match('/^'.$mask.'$/', $route)) {
+            if (preg_match('/^' . $mask . '$/', $route)) {
                 return true;
             }
         }

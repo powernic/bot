@@ -3,8 +3,8 @@
 namespace Powernic\Bot\Emias\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Powernic\Bot\Emias\Entity\DoctorInfo;
-use Powernic\Bot\Emias\Entity\Speciality;
+use Powernic\Bot\Emias\API\Entity\DoctorCollection;
+use Powernic\Bot\Emias\Entity\Doctor;
 use Powernic\Bot\Emias\Repository\DoctorRepository;
 use Powernic\Bot\Emias\Repository\SpecialityRepository;
 
@@ -26,25 +26,24 @@ class DoctorService
     }
 
     /**
-     * @param DoctorInfo[] $doctorInfoCollection
+     * @param DoctorCollection $doctorCollection
+     * @param int $specialityId
      */
-    public function saveDoctors(array $doctorInfoCollection, int $specialityId)
+    public function saveDoctors(DoctorCollection $doctorCollection, int $specialityId)
     {
         $speciality = $this->specialityRepository->find($specialityId);
-        foreach ($doctorInfoCollection as $doctorInfo) {
-            $doctor = $doctorInfo->getMainDoctor();
-            $doctor->setSpeciality($speciality);
+        foreach ($doctorCollection as $doctor) {
             $doctorEntity = $this->doctorRepository->find($doctor->getEmployeeId());
-            if ($doctorEntity) {
-                $doctorEntity
-                    ->setSpecialityName($doctor->getSpecialityName())
-                    ->setFirstName($doctor->getFirstName())
-                    ->setLastName($doctor->getLastName())
-                    ->setSecondName($doctor->getSecondName())
-                    ->setSpeciality($doctor->getSpeciality());
-            } else {
-                $this->entityManager->persist($doctor);
+            if (!$doctorEntity) {
+                $doctorEntity = new Doctor($doctor->getEmployeeId());
             }
+            $personName = $doctor->getPersonName();
+            $doctorEntity
+                ->setFirstName($personName->getFirstName())
+                ->setLastName($personName->getLastName())
+                ->setSecondName($personName->getSecondName())
+                ->setSpeciality($speciality);
+            $this->entityManager->persist($doctorEntity);
         }
 
         $this->entityManager->flush();

@@ -3,31 +3,42 @@
 namespace Powernic\Bot\Emias\Subscription\Doctor\Service;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
+use Powernic\Bot\Emias\API\Entity\ScheduleCollection;
+use Powernic\Bot\Emias\API\Repository\ScheduleRepository; 
 use Powernic\Bot\Emias\Entity\Speciality;
+use Powernic\Bot\Emias\Exception\SubscriptionExistsException;
 use Powernic\Bot\Emias\Policy\Entity\Policy;
 use Powernic\Bot\Emias\Policy\Repository\PolicyRepository;
 use Powernic\Bot\Emias\Repository\DoctorRepository;
 use Powernic\Bot\Emias\Repository\SpecialityRepository;
 use Powernic\Bot\Emias\Subscription\Doctor\Entity\DoctorSubscription;
 use Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription;
+use Powernic\Bot\Emias\Subscription\Doctor\Entity\Subscription;
+use Powernic\Bot\Emias\Subscription\Doctor\Repository\DoctorSubscriptionRepository;
+use Powernic\Bot\Emias\Subscription\EventListener\SubscriptionEventListener;
 
-final class DoctorSubscriptionService
+final class DoctorSubscriptionService extends SubscriptionService
 {
     private SpecialityRepository $specialityRepository;
     private PolicyRepository $policyRepository;
-    private EntityManager $entityManager;
     private DoctorRepository $doctorRepository;
+    private ScheduleRepository $scheduleRepository;
 
     public function __construct(
         SpecialityRepository $specialityRepository,
         PolicyRepository $policyRepository,
-        EntityManager $entityManager,
-        DoctorRepository $doctorRepository
+        EntityManagerInterface $entityManager,
+        DoctorRepository $doctorRepository,
+        ScheduleRepository $scheduleRepository,
+        DoctorSubscriptionRepository $doctorSubscriptionRepository,
+        SubscriptionEventListener $subscriptionEventListener
     ) {
         $this->specialityRepository = $specialityRepository;
         $this->policyRepository = $policyRepository;
-        $this->entityManager = $entityManager;
         $this->doctorRepository = $doctorRepository;
+        parent::__construct($doctorSubscriptionRepository, $entityManager, $subscriptionEventListener);
+        $this->scheduleRepository = $scheduleRepository;
     }
 
     public function registerOnAllDaySubscription(int $policyId, int $speciality): SpecialitySubscription
@@ -50,9 +61,19 @@ final class DoctorSubscriptionService
         $doctor = $this->doctorRepository->find($doctorId);
         $doctorSubscription = (new DoctorSubscription())
             ->setPolicy($policy);
+        if($doctor->doctorSubscriptionsExists($doctorSubscription)){
+            throw new SubscriptionExistsException();
+        }
         $doctor->addDoctorSubscription($doctorSubscription);
         $this->entityManager->persist($doctor);
         $this->entityManager->flush();
         return $doctorSubscription;
+    }
+
+    protected function getSchedules(DoctorSubscription|Subscription $subscription): ScheduleCollection
+    {
+        $policy = $subscription->getPolicy();
+        $doctor = $subscription->getDoctor();
+        return $this->scheduleRepository->findByDoctor($policy, $doctor);
     }
 }

@@ -21,8 +21,8 @@ class MessageRepository extends ServiceEntityRepository
     {
         return Criteria::create()
             ->andWhere(Criteria::expr()->eq("user", $user))
-            ->andWhere(Criteria::expr()->eq("actionCode", $user->getActionCode()))
-            ->andWhere(Criteria::expr()->gte("time", $user->getActionTime()));
+            ->andWhere(Criteria::expr()->eq("actionCode", $user->getAction()->getCode()))
+            ->andWhere(Criteria::expr()->gte("time", $user->getAction()->getTime()));
     }
 
     public function countLastAction(User $user): int

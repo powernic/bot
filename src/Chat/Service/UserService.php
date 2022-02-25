@@ -6,7 +6,9 @@ use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
+use Powernic\Bot\Chat\Entity\Action;
 use Powernic\Bot\Chat\Entity\User;
+use Powernic\Bot\Chat\Entity\UserName;
 use Powernic\Bot\Chat\Repository\UserRepository;
 use Powernic\Bot\Emias\Policy\CallbackHandler\AddCallbackHandler;
 use TelegramBot\Api\Types\CallbackQuery;
@@ -29,7 +31,7 @@ final class UserService
         /** @var User $user */
         $user = $this->userRepository->find($userId);
 
-        return $user->getActionCode();
+        return $user->getAction()->getCode();
     }
 
     public function save(User $user)
@@ -51,8 +53,8 @@ final class UserService
             $user = $this->createUser($message->getChat());
         }
         $messageTime = (new DateTime())->setTimestamp($message->getDate());
-        $user->setActionTime($messageTime);
-        $user->setActionCode($actionName);
+        $action = new Action($messageTime, $actionName);
+        $user->setAction($action);
         $this->save($user);
     }
 
@@ -63,10 +65,10 @@ final class UserService
      */
     private function createUser(Chat $chat): User
     {
+        $userName = new UserName($chat->getFirstName(), $chat->getLastName());
         return (new User())
             ->setId($chat->getId())
-            ->setFirstName($chat->getFirstName())
-            ->setLastName($chat->getLastName())
-            ->setUserName($chat->getUsername());
+            ->setUserName($userName)
+            ->setAccountName($chat->getUsername());
     }
 }

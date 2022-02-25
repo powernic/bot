@@ -1,0 +1,193 @@
+@startuml
+!define DARKBLUE
+!includeurl https://raw.githubusercontent.com/Drakemor/RedDress-PlantUML/master/style.puml
+set namespaceSeparator \\
+hide empty members
+skinparam linetype polyline
+namespace "Powernic\\Bot\\Framework" as Framework {
+    namespace Form{
+        interface DataTransformerInterface{
+            + transform
+        }
+        interface FormBuilderInterface{
+            + add()
+            + getForm(): Form
+        }
+        abstract class Form{
+            + isLastFieldRequest() : bool
+            + setRequest(Message message): string
+            + validate()
+            + handleRequest(): string
+            + createFieldMessage(): string
+            + isFilled()
+        }
+    }
+    namespace Handler {
+       interface HandlerInterface{
+        + handle()
+       }
+       abstract class Handler implements HandlerInterface{
+       }
+       namespace Callback{
+           abstract class CallbackHandler extends Framework\\Handler\\Handler
+       }
+       namespace Command{
+           abstract class CommandHandler extends Framework\\Handler\\Handler
+       }
+       namespace Text{
+           abstract class TextHandler extends Framework\\Handler\\Handler{
+                + createForm(data = null): Form
+           }
+       }
+    }
+
+    namespace Chat{
+        namespace User{
+            interface UserServiceInterface{
+                + getCurrentAction(int userId): string
+                + setUserAction(int userId, Message message, string actionName)
+            }
+        }
+        namespace Message{
+            interface MessageServiceInterface{
+                + saveMessage()
+            }
+            interface MessageRepositoryInterface{
+                + getAllByLastAction(): []
+            }
+        }
+    }
+}
+
+namespace "Powernic\\Bot\\Chat" as Bot\\Chat {
+
+        namespace Service{
+            class MessageService  << (S, $ACCENT) >> implements Framework\\Chat\\Message\\MessageServiceInterface{
+                - getUser(int userId): User
+            }
+            class UserService  << (S, $ACCENT) >> implements Framework\\Chat\\User\\UserServiceInterface
+        }
+
+        namespace Repository{
+            class UserRepository << (R, $ACCENT) >>  implements Framework\\Chat\\Message\\UserRepositoryInterface
+            class MessageRepository << (R, $ACCENT) >> implements Framework\\Chat\\Message\\MessageRepositoryInterface{
+                + getAllByLastAction(User user): Message[]
+                + countLastAction(User user): int
+            }
+        }
+
+        namespace Entity{
+            class Message << (E, orchid) >>
+            class User << (E, orchid) >>
+            class Action  << (E, orchid) >>
+            class UserName  << (E, orchid) >>
+        }
+}
+namespace "Powernic\\Bot\\Emias" as Bot\\Emias {
+    namespace Policy{
+        namespace Handler{
+            namespace Callback{
+                class AddCallbackHandler extends Framework\\Handler\\Callback\\CallbackHandler
+                class EditCallbackHandler extends Framework\\Handler\\Callback\\CallbackHandler
+                class RemoveCallbackHandler extends Framework\\Handler\\Callback\\CallbackHandler
+                class ShowCallbackHandler extends Framework\\Handler\\Callback\\CallbackHandler
+            }
+            namespace Command{
+                class EmiasPolicyCommandHandler extends Framework\\Handler\\Command\\CommandHandler
+            }
+            namespace Text{
+                class AddTextHandler extends Framework\\Handler\\Text\\TextHandler
+                class EditTextHandler extends Framework\\Handler\\Text\\TextHandler
+            }
+        }
+        namespace Entity{
+            class Policy << (E, orchid) >>{
+
+            }
+        }
+        namespace Repository{
+            class PolicyRepository
+        }
+        namespace Service{
+            class PolicyService  << (S, $ACCENT) >>{
+                -  policyRepository: PolicyRepository
+                -  messageRepository: MessageRepositoryInterface
+                -  userRepository: UserRepositoryInterface
+                + addPolicy() : Policy
+                + editPolicy() : Policy
+                + removePolicy() : Policy
+            }
+        }
+        namespace Form{
+            class PolicyForm extends Framework\\Form\\Form
+        }
+    }
+
+
+    namespace Service {
+            class DoctorService << (S, $ACCENT) >>{
+                +saveDoctors(DoctorInfoCollection doctorInfoCollection, int specialityId)
+            }
+            class EmiasService
+            class ScheduleInfoService
+        }
+    namespace Entity{
+        class Doctor << (E, orchid) >>
+        class DoctorInfo << (E, orchid) >>
+        class DoctorInfoCollection << (E, orchid) >>
+        class ReceptionType << (E, orchid) >>
+        class Resource << (E, orchid) >>
+        class Room << (E, orchid) >>
+        class ScheduleInfo << (E, orchid) >>
+        class Speciality << (E, orchid) >>
+    }
+    namespace Repository{
+        class DoctorRepository
+        class SpecialityRepository
+    }
+}
+
+Bot\\Emias\\Policy\\Handler\\Text\\EditTextHandler  .[#blue].> Bot\\Emias\\Policy\\Service\\PolicyService: call editPolicy()
+Bot\\Emias\\Policy\\Handler\\Text\\EditTextHandler  .[#blue]up.> Bot\\Emias\\Policy\\Form\\PolicyForm: call createFieldMessage()
+Bot\\Emias\\Policy\\Handler\\Text\\AddTextHandler  .[#blue].> Bot\\Emias\\Policy\\Service\\PolicyService: call addPolicy()
+Bot\\Emias\\Policy\\Handler\\Text\\AddTextHandler  .[#blue]up.> Bot\\Emias\\Policy\\Form\\PolicyForm: call createFieldMessage()
+Bot\\Emias\\Policy\\Handler\\Callback\\RemoveCallbackHandler  .[#blue].> Bot\\Emias\\Policy\\Service\\PolicyService: call removePolicy()
+Bot\\Emias\\Policy\\Handler\\Callback\\ShowCallbackHandler .[#blue].> Bot\\Emias\\Policy\\Repository\\PolicyRepository: call find()
+Bot\\Emias\\Policy\\Handler\\Callback\\EditCallbackHandler .[#blue]up.> Bot\\Emias\\Policy\\Form\\PolicyForm: call createFieldMessage()
+Bot\\Emias\\Policy\\Handler\\Callback\\AddCallbackHandler .[#blue]up.> Bot\\Emias\\Policy\\Form\\PolicyForm: call createFieldMessage()
+
+Framework\\Handler\\Text\\TextHandler o--> Framework\\Chat\\Message\\MessageServiceInterface
+
+
+Bot\\Emias\\Policy\\Service\\PolicyService  ..>  Framework\\Chat\\Message\\MessageRepositoryInterface : call getAllByLastAction()
+Bot\\Emias\\Policy\\Service\\PolicyService  ..>  Framework\\Chat\\Message\\UserRepositoryInterface : find
+
+Bot\\Chat\\Repository\\MessageRepository *--> Bot\\Chat\\Entity\\Message
+Bot\\Chat\\Repository\\UserRepository *--> Bot\\Chat\\Entity\\User
+Bot\\Chat\\Service\\UserService o-->  Bot\\Chat\\Repository\\UserRepository
+Bot\\Chat\\Service\\MessageService o-->  Bot\\Chat\\Repository\\UserRepository : find
+Bot\\Chat\\Service\\MessageService ..>  Bot\\Chat\\Entity\\Message
+Bot\\Chat\\Entity\\User "1" *-left-> "*" Bot\\Chat\\Entity\\Message
+Bot\\Chat\\Entity\\User *--> Bot\\Chat\\Entity\\UserName
+Bot\\Chat\\Entity\\User *--> Bot\\Chat\\Entity\\Action
+
+Bot\\Emias\\Policy\\Service\\PolicyService ..> Bot\\Emias\\Policy\\Entity\\Policy: create
+Bot\\Emias\\Policy\\Service\\PolicyService ..> Bot\\Emias\\Policy\\Repository\\PolicyRepository: use
+Bot\\Emias\\Policy\\Repository\\PolicyRepository *->  "0..*" Bot\\Emias\\Policy\\Entity\\Policy
+
+
+Bot\\Emias\\Entity\\DoctorInfoCollection *-- "1..*" Bot\\Emias\\Entity\\DoctorInfo
+Bot\\Emias\\Entity\\DoctorInfo *-- Bot\\Emias\\Entity\\Doctor
+Bot\\Emias\\Entity\\DoctorInfo *-- "0..1" Bot\\Emias\\Entity\\Resource
+Bot\\Emias\\Entity\\DoctorInfo *-- "0..1" Bot\\Emias\\Entity\\ReceptionType
+Bot\\Emias\\Entity\\Resource *-- Bot\\Emias\\Entity\\Room
+Bot\\Emias\\Entity\\Doctor *-- Bot\\Emias\\Entity\\Speciality
+
+
+Bot\\Emias\\Service\\DoctorService o--> Bot\\Emias\\Repository\\SpecialityRepository: find
+Bot\\Emias\\Service\\DoctorService o--> Bot\\Emias\\Repository\\DoctorRepository : find
+Bot\\Emias\\Service\\DoctorService o--> Bot\\Emias\\Entity\\DoctorInfoCollection : use
+
+Framework\\Handler\\Handler o--> Framework\\Chat\\User\\UserServiceInterface : use
+skinparam groupInheritance 4
+@enduml

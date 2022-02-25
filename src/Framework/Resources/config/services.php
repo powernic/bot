@@ -4,17 +4,15 @@ use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\Persistence\ManagerRegistry;
 use Powernic\Bot\Framework\Doctrine\EntityManagerFactory;
+use Powernic\Bot\Framework\Doctrine\EventSubscriber\NullableEmbeddable;
 use Powernic\Bot\Framework\Doctrine\Registry;
-use Powernic\Bot\Framework\Form\FormFactory;
-use Powernic\Bot\Framework\Form\FormRegistry;
 use Powernic\Bot\Framework\Handler\Resolver\CallbackHandlerResolver;
 use Powernic\Bot\Framework\Handler\Resolver\TextHandlerResolver;
 use Powernic\Bot\Framework\Handler\Resolver\CommandHandlerResolver;
 use Powernic\Bot\Framework\Handler\Resolver\ContainerHandlerResolver;
-use Powernic\Bot\Framework\Handler\Resolver\TextHandlerResolverInterface;
-use Powernic\Bot\Framework\Handler\Text\CallbackTextHandler;
 use Powernic\Bot\Framework\Repository\ContainerRepositoryFactory;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
@@ -75,7 +73,6 @@ return static function (ContainerConfigurator $container) {
         ->alias(EntityManagerInterface::class, EntityManager::class)
         ->set('doctrine.connection', Connection::class)
             ->public()
-
         ->set(ManagerRegistry::class, Registry::class)
             ->args([
                 service("service_container"),
@@ -86,5 +83,7 @@ return static function (ContainerConfigurator $container) {
             ])
         ->alias('doctrine', ManagerRegistry::class)
         ->set('doctrine.orm.container_repository_factory', ContainerRepositoryFactory::class)
+            ->args([service(ServiceLocator::class)])
+        ->set('doctrine.orm.metadata.attribute.class', AttributeDriver::class)
             ->args([service(ServiceLocator::class)]);
 };

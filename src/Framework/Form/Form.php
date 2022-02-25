@@ -2,12 +2,10 @@
 
 namespace Powernic\Bot\Framework\Form;
 
-use Powernic\Bot\Emias\Policy\Entity\Policy;
 use Powernic\Bot\Framework\Exception\UnexpectedRequestException;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use TelegramBot\Api\Types\Message;
-use TelegramBot\Api\Types\Update;
 
 abstract class Form
 {

@@ -7,12 +7,16 @@ exception:
     remove: "Этого полиса больше не сущестсвует"
   unexpected:
     request: "Вы батенька, что-то не то делаете!"
+  subscription:
+    exists: "Вы уже были подписаны"
 validator:
   policy:
     code: "Номер полиса должен иметь длину {{ limit }} символов"
     date: "Дата указана неверно"
 emias:
   subscription:
+    not_available_schedule:  |
+      Запись к: %speciality% больше недоступна
     new_schedule:  |
       Появилась запись к: %speciality%
       на %date_time%

@@ -19,9 +19,6 @@ use Powernic\Bot\Emias\Subscription\Doctor\Entity\DoctorSubscription;
  **/
 class Doctor
 {
-    private string $specialityName;
-
-    private int $specialityId;
 
     /**
      * @ManyToOne(targetEntity=\Powernic\Bot\Emias\Entity\Speciality::class, inversedBy="doctors", cascade={"persist",
@@ -45,7 +42,6 @@ class Doctor
      * @Column(type="string")
      */
     private string $secondName;
-    private int $mejiId;
     /**
      * @Id()
      * @var int
@@ -59,45 +55,10 @@ class Doctor
      */
     private $doctorSubscriptions;
 
-    public function __construct()
+    public function __construct(int $employeeId)
     {
         $this->doctorSubscriptions = new ArrayCollection();
-    }
-
-    /**
-     * @return string
-     */
-    public function getSpecialityName(): string
-    {
-        return $this->specialityName;
-    }
-
-    /**
-     * @param string $specialityName
-     * @return Doctor
-     */
-    public function setSpecialityName(string $specialityName): Doctor
-    {
-        $this->specialityName = $specialityName;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getSpecialityId(): int
-    {
-        return $this->specialityId;
-    }
-
-    /**
-     * @param int $specialityId
-     * @return Doctor
-     */
-    public function setSpecialityId(int $specialityId): Doctor
-    {
-        $this->specialityId = $specialityId;
-        return $this;
+        $this->employeeId = $employeeId;
     }
 
     /**
@@ -155,32 +116,6 @@ class Doctor
     }
 
     /**
-     * @return int
-     */
-    public function getMejiId(): int
-    {
-        return $this->mejiId;
-    }
-
-    /**
-     * @param int $mejiId
-     * @return Doctor
-     */
-    public function setMejiId(int $mejiId): Doctor
-    {
-        $this->mejiId = $mejiId;
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getEmployeeId(): int
-    {
-        return $this->employeeId;
-    }
-
-    /**
      * @param int $employeeId
      * @return Doctor
      */
@@ -217,6 +152,19 @@ class Doctor
             $doctorSubscription->setDoctor($this);
         }
         return $this;
+    }
+
+    public function doctorSubscriptionsExists(DoctorSubscription $doctorSubscription): bool
+    {
+        return $this->doctorSubscriptions->exists(
+            function ($key, DoctorSubscription $value) use ($doctorSubscription) {
+                $theSamePolicy = $value->getPolicy()->getId() === $doctorSubscription->getPolicy()->getId();
+                $theSameStartTime = $value->getStartTimeInterval() === $doctorSubscription->getStartTimeInterval();
+                $theSameEndTime = $value->getEndTimeInterval() === $doctorSubscription->getEndTimeInterval();
+                $theSameTimeInterval = $theSameStartTime && $theSameEndTime;
+                return $theSamePolicy && $theSameTimeInterval;
+            }
+        );
     }
 
     /**

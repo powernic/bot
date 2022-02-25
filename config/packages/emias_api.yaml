@@ -1,0 +1,16 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+
+
+  Powernic\Bot\Emias\API\Repository\:
+    resource: '../../src/Emias/API/Repository/*'
+
+  Powernic\Bot\Emias\API\Service\:
+    resource: '../../src/Emias/API/Service/*'
+
+  Powernic\Bot\Emias\API\Service\EmiasApiService:
+    arguments:
+      $apiUrl : '%emias.api_url%'

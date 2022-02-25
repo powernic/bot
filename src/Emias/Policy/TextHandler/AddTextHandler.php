@@ -3,17 +3,13 @@
 namespace Powernic\Bot\Emias\Policy\TextHandler;
 
 use Exception;
-use Powernic\Bot\Chat\Repository\MessageRepository;
 use Powernic\Bot\Chat\Service\MessageService;
-use Powernic\Bot\Emias\Policy\Entity\Policy;
 use Powernic\Bot\Emias\Policy\Form\PolicyForm;
 use Powernic\Bot\Emias\Policy\Service\PolicyService;
-use Powernic\Bot\Framework\Exception\UnexpectedRequestException;
 use Powernic\Bot\Framework\Handler\Text\TextHandler;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use TelegramBot\Api\BotApi;
-use TelegramBot\Api\Types\Message;
 
 class AddTextHandler extends TextHandler
 {

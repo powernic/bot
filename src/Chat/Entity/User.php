@@ -2,14 +2,15 @@
 
 namespace Powernic\Bot\Chat\Entity;
 
-use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Embedded;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\Table;
 use Powernic\Bot\Emias\Policy\Entity\Policy;
+use Doctrine\ORM\Mapping AS ORM;
 
 /**
  * @Entity()
@@ -21,32 +22,22 @@ class User
      * @Id
      * @Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
-     * @Column(type="string", name="first_name")
+     * @Column(type="string", name="account_name", unique="true")
      */
-    private $firstName;
+    private string $accountName;
 
     /**
-     * @Column(type="string", name="last_name")
+     * @Embedded(class="UserName" , columnPrefix = false )
      */
-    private $lastName;
+    private UserName $userName;
 
     /**
-     * @Column(type="string", name="username", unique="true")
+     * @Embedded(class="Action" , columnPrefix = false )
      */
-    private $userName;
-
-    /**
-     * @Column(type="datetime", name="action_time" )
-     */
-    private $actionTime;
-
-    /**
-     * @Column(type="string", name="action_code" )
-     */
-    private $actionCode;
+    private Action $action;
 
     /**
      * @OneToMany(targetEntity=Message::class, mappedBy="user")
@@ -76,60 +67,21 @@ class User
     }
 
     /**
-     * @param string $firstName
+     * @param string $accountName
      * @return User
      */
-    public function setFirstName(string $firstName): self
+    public function setAccountName(string $accountName): self
     {
-        $this->firstName = $firstName;
+        $this->accountName = $accountName;
 
         return $this;
     }
-
-    /**
-     * @param string $lastName
-     * @return User
-     */
-    public function setLastName(string $lastName): self
-    {
-        $this->lastName = $lastName;
-
-        return $this;
-    }
-
-    /**
-     * @param string $userName
-     * @return User
-     */
-    public function setUserName(string $userName): self
-    {
-        $this->userName = $userName;
-
-        return $this;
-    }
-
     /**
      * @return string
      */
-    public function getFirstName(): string
+    public function getAccountName(): string
     {
-        return $this->firstName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLastName(): string
-    {
-        return $this->lastName;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUserName(): string
-    {
-        return $this->userName;
+        return $this->accountName;
     }
 
     /**
@@ -160,48 +112,47 @@ class User
     }
 
     /**
-     * @param DateTime $actionTime
-     * @return User
-     */
-    public function setActionTime(DateTime $actionTime): self
-    {
-        $this->actionTime = $actionTime;
-
-        return $this;
-    }
-
-    /**
-     * @return DateTime
-     */
-    public function getActionTime(): DateTime
-    {
-        return $this->actionTime;
-    }
-
-    /**
-     * @param string $actionCode
-     * @return User
-     */
-    public function setActionCode(string $actionCode): self
-    {
-        $this->actionCode = $actionCode;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getActionCode(): string
-    {
-        return $this->actionCode;
-    }
-
-    /**
      * @return int
      */
     public function getId(): int
     {
         return $this->id;
     }
+
+    /**
+     * @return UserName
+     */
+    public function getUserName(): UserName
+    {
+        return $this->userName;
+    }
+
+    /**
+     * @param UserName $userName
+     * @return User
+     */
+    public function setUserName(UserName $userName): self
+    {
+        $this->userName = $userName;
+        return $this;
+    }
+
+    /**
+     * @return Action
+     */
+    public function getAction(): Action
+    {
+        return $this->action;
+    }
+
+    /**
+     * @param Action $action
+     * @return User
+     */
+    public function setAction(Action $action): self
+    {
+        $this->action = $action;
+        return $this;
+    }
+
 }

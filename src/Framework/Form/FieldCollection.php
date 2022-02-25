@@ -2,8 +2,6 @@
 
 namespace Powernic\Bot\Framework\Form;
 
-use Psr\Container\ContainerInterface;
-
 class FieldCollection
 {
     /**

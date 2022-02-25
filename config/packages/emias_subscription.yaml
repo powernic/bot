@@ -3,14 +3,14 @@ services:
     autowire: true
     autoconfigure: true
 
-  Powernic\Bot\Emias\Subscription\Service\:
-    resource: '../../src/Emias/Subscription/Service/*'
-
   Powernic\Bot\Emias\Subscription\Doctor\Service\:
     resource: '../../src/Emias/Subscription/Doctor/Service/*'
 
   Powernic\Bot\Emias\Subscription\Doctor\Repository\:
     resource: '../../src/Emias/Subscription/Doctor/Repository/*'
+
+  Powernic\Bot\Emias\Subscription\EventListener\:
+    resource: '../../src/Emias/Subscription/EventListener/*'
 
   app.emias.sub:
     class: Powernic\Bot\Emias\Subscription\CommandHandler\EmiasSubscriptionCommandHandler
@@ -68,13 +68,14 @@ services:
    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\OneDoctorAllDay
    tags:
      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:allday' }
-    #
-    # app.emias.sub.doctor.onedoc.oneday:
-    #   class:
-    #   tags:
-    #     - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:oneday' }
-    #
-    # app.emias.sub.doctor.onedoc.oneday.text:
-    #   class:
-    #   tags:
-    #     - { name: 'app.callback_handler', 'action': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:oneday' }
+
+  #app.emias.sub.doctor.onedoc.oneday:
+  #  class:
+  #  tags:
+  #    - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:oneday' }
+
+  #app.emias.sub.doctor.onedoc.oneday.text:
+  #  class:
+  #  tags:
+  #    - { name: 'app.callback_handler', 'action': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:oneday' }
+#

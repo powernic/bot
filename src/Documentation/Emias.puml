@@ -1,0 +1,51 @@
+@startuml
+!define DARKBLUE
+!includeurl https://raw.githubusercontent.com/Drakemor/RedDress-PlantUML/master/style.puml
+set namespaceSeparator \\
+hide empty members
+skinparam linetype polyline
+
+abstract class EmiasApiService{
+    + getSpecialitiesInfo()
+    + getBatchScheduleInfo()
+    + getAvailableResourceScheduleInfo()
+}
+abstract class EmiasRepository{
+    # emiasApiService
+    + findAll()
+    + findOneBy()
+}
+EmiasRepository o-- EmiasApiService
+interface SubscriberInterface {
+    + getNearestScheduleInAllDay(): Schedule
+    + getNearestScheduleInConcreteDay(): Schedule
+}
+abstract class Subscriber implements SubscriberInterface {
+}
+class ReceiptRepository extends EmiasRepository{
+}
+class SpecialityRepository extends EmiasRepository{
+}
+class DoctorRepository extends EmiasRepository{
+}
+class ScheduleRepository extends EmiasRepository{
+    + findBySpeciality()
+    + findByDoctor()
+}
+entity Receipt << (E, orchid) >>
+entity Doctor << (E, orchid) >>
+entity Speciality << (E, orchid) >>
+entity Schedule << (E, orchid) >>
+ReceiptRepository  o..  Receipt
+DoctorRepository  o..  Doctor
+SpecialityRepository  o..  Speciality
+ScheduleRepository  o..  Schedule
+
+Subscriber  o..  Schedule: get
+
+class ReceiptService  implements Subscriber
+class DoctorService  implements Subscriber
+class SpecialityService  implements Subscriber
+
+Subscriber  o..  EmiasRepository
+@enduml

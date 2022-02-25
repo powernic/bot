@@ -59,12 +59,12 @@ class Policy
     private $user;
 
     /**
-     * @OneToMany(targetEntity=\Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription::class, mappedBy="policy")
+     * @OneToMany(targetEntity=\Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription::class, mappedBy="policy", orphanRemoval=true, cascade={"persist", "remove" })
      */
     private $specialitySubscriptions;
 
     /**
-     * @OneToMany(targetEntity=\Powernic\Bot\Emias\Subscription\Doctor\Entity\DoctorSubscription::class, mappedBy="policy")
+     * @OneToMany(targetEntity=\Powernic\Bot\Emias\Subscription\Doctor\Entity\DoctorSubscription::class, mappedBy="policy", orphanRemoval=true, cascade={"persist", "remove" })
      */
     private $doctorSubscriptions;
 
@@ -166,6 +166,7 @@ class Policy
     {
         return $this->specialitySubscriptions;
     }
+
     /**
      * @return ArrayCollection|DoctorSubscription[]
      */

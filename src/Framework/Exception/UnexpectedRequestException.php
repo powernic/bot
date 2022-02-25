@@ -6,5 +6,5 @@ use Exception;
 
 class UnexpectedRequestException extends Exception
 {
-
+    protected $message = 'exception.unexpected.request';
 }

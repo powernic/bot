@@ -22,7 +22,7 @@ final class TextHandlerResolver implements TextHandlerResolverInterface
         /** @var ?User $user */
         $user = $this->userRepository->find($id);
         if ($user) {
-            return $user->getActionCode();
+            return $user->getAction()->getCode();
         }
 
         return "";

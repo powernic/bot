@@ -2,11 +2,8 @@
 
 namespace Powernic\Bot\Emias\Policy\CallbackHandler;
 
-use Doctrine\ORM\EntityManager;
 use Powernic\Bot\Chat\Service\UserService;
-use Powernic\Bot\Emias\Policy\Entity\Policy;
 use Powernic\Bot\Emias\Policy\Form\PolicyForm;
-use Powernic\Bot\Emias\Policy\Repository\PolicyRepository;
 use Powernic\Bot\Framework\Exception\UnexpectedRequestException;
 use Powernic\Bot\Framework\Handler\Callback\CallbackHandler;
 use Symfony\Contracts\Translation\TranslatorInterface;

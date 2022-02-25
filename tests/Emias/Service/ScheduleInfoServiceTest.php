@@ -3,7 +3,7 @@
 namespace Emias\Service;
 
 use LengthException;
-use Powernic\Bot\Emias\Entity\ScheduleInfo;
+use Powernic\Bot\Emias\Entity\Schedule;
 use Powernic\Bot\Emias\Service\ScheduleInfoService;
 use PHPUnit\Framework\TestCase;
 
@@ -12,10 +12,10 @@ class ScheduleInfoServiceTest extends TestCase
     public function testGetNearestScheduleInfo()
     {
         $scheduleInfoService = new ScheduleInfoService();
-        $scheduleInfo1 = (new ScheduleInfo())->setStartTime("2021-11-20T15:48:00+03:00");
-        $scheduleInfo2 = (new ScheduleInfo())->setStartTime("2021-12-20T16:48:00+03:00");
-        $scheduleInfo3 = (new ScheduleInfo())->setStartTime("2021-12-20T16:48:00+03:00");
-        $scheduleInfo4 = (new ScheduleInfo())->setStartTime("2021-12-20T17:48:00+03:00");
+        $scheduleInfo1 = (new Schedule())->setStartTime("2021-11-20T15:48:00+03:00");
+        $scheduleInfo2 = (new Schedule())->setStartTime("2021-12-20T16:48:00+03:00");
+        $scheduleInfo3 = (new Schedule())->setStartTime("2021-12-20T16:48:00+03:00");
+        $scheduleInfo4 = (new Schedule())->setStartTime("2021-12-20T17:48:00+03:00");
         $scheduleInfoCollection = [$scheduleInfo1, $scheduleInfo2, $scheduleInfo3, $scheduleInfo4];
         $this->assertSame(
             $scheduleInfo1,
@@ -27,10 +27,10 @@ class ScheduleInfoServiceTest extends TestCase
     {
         $scheduleInfoService = new ScheduleInfoService();
         $targetDay = new \DateTimeImmutable("2021-12-20T11:00:00+03:00");
-        $scheduleInfo1 = (new ScheduleInfo())->setStartTime("2021-11-20T15:48:00+03:00");
-        $scheduleInfo2 = (new ScheduleInfo())->setStartTime("2021-12-20T16:48:00+03:00");
-        $scheduleInfo3 = (new ScheduleInfo())->setStartTime("2021-12-20T16:48:00+03:00");
-        $scheduleInfo4 = (new ScheduleInfo())->setStartTime("2021-12-20T17:48:00+03:00");
+        $scheduleInfo1 = (new Schedule())->setStartTime("2021-11-20T15:48:00+03:00");
+        $scheduleInfo2 = (new Schedule())->setStartTime("2021-12-20T16:48:00+03:00");
+        $scheduleInfo3 = (new Schedule())->setStartTime("2021-12-20T16:48:00+03:00");
+        $scheduleInfo4 = (new Schedule())->setStartTime("2021-12-20T17:48:00+03:00");
         $scheduleInfoCollection = [$scheduleInfo1, $scheduleInfo2, $scheduleInfo3, $scheduleInfo4];
         $this->assertSame(
             $scheduleInfo2,
