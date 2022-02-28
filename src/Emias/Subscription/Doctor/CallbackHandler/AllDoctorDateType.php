@@ -25,14 +25,10 @@ class AllDoctorDateType extends CallbackHandler
         $speciality = (int)$this->getParameter("speciality");
         $typeButtons = $this->getDateTypeButtons($policyId, $speciality);
         $keyboard = new InlineKeyboardMarkup($typeButtons);
-        $this->bot->sendMessage(
-            $this->message->getChat()->getId(),
-            "День записи:",
-            null,
-            false,
-            null,
-            $keyboard
-        );
+        $chatId = $this->message->getChat()->getId();
+        $messageId = $this->message->getMessageId();
+        $this->bot->editMessageText($chatId, $messageId, "День записи:");
+        $this->bot->editMessageReplyMarkup($chatId, $messageId, $keyboard);
     }
 
     private function getDateTypeButtons(int $policyId, int $speciality)

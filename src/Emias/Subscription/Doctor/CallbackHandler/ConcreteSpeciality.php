@@ -29,14 +29,11 @@ class ConcreteSpeciality extends CallbackHandler
         } catch (RequestException $e) {
             $responseMessage = $e->getResponse()->getRpcErrorMessage();
         }
-        $this->bot->sendMessage(
-            $this->message->getChat()->getId(),
-            $responseMessage,
-            null,
-            false,
-            null,
-            $keyboard
-        );
+
+        $chatId = $this->message->getChat()->getId();
+        $messageId = $this->message->getMessageId();
+        $this->bot->editMessageText($chatId, $messageId, $responseMessage);
+        $this->bot->editMessageReplyMarkup($chatId, $messageId, $keyboard); 
     }
 
     /**

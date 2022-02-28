@@ -23,14 +23,10 @@ class TypeCallbackHandler extends CallbackHandler
         $policyId = (int)$this->getParameter("id");
         $typeButtons = $this->getTypeButtons($policyId);
         $keyboard = new InlineKeyboardMarkup($typeButtons);
-        $this->bot->sendMessage(
-            $this->message->getChat()->getId(),
-            "Тип записи:",
-            null,
-            false,
-            null,
-            $keyboard
-        );
+        $chatId = $this->message->getChat()->getId();
+        $messageId = $this->message->getMessageId();
+        $this->bot->editMessageText($chatId, $messageId, "Тип записи:");
+        $this->bot->editMessageReplyMarkup($chatId, $messageId, $keyboard);
     }
 
     private function getTypeButtons(int $policyId): array

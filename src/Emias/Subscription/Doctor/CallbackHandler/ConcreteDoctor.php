@@ -4,7 +4,6 @@ namespace Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler;
 
 use Graze\GuzzleHttp\JsonRpc\Exception\RequestException;
 use Powernic\Bot\Emias\API\Entity\Doctor;
-use Powernic\Bot\Emias\API\Entity\DoctorCollection;
 use Powernic\Bot\Emias\API\Repository\DoctorRepository;
 use Powernic\Bot\Emias\Service\DoctorService;
 use Powernic\Bot\Framework\Handler\Callback\CallbackHandler;

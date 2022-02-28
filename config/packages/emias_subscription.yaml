@@ -12,10 +12,20 @@ services:
   Powernic\Bot\Emias\Subscription\EventListener\:
     resource: '../../src/Emias/Subscription/EventListener/*'
 
+
   app.emias.sub:
     class: Powernic\Bot\Emias\Subscription\CommandHandler\EmiasSubscriptionCommandHandler
     tags:
       - { name: 'app.command_handler', 'command': 'emiassub' }
+
+  Powernic\Bot\Framework\Chat\Calendar\Selector\SelectorFactory:
+
+  app.emias.sub.calendar:
+    class: Powernic\Bot\Framework\Chat\Calendar\Handler\CalendarCallbackHandler
+    arguments:
+      $containerHandlerResolver: '@handler_resolver.container'
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{year}:{month}:{day}:{period}' }
 
   app.emias.sub.type:
     class: Powernic\Bot\Emias\Subscription\CallbackHandler\TypeCallbackHandler
@@ -65,9 +75,9 @@ services:
       - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}' }
 
   app.emias.sub.doctor.onedoc.allday:
-   class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\OneDoctorAllDay
-   tags:
-     - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:allday' }
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\OneDoctorAllDay
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:allday' }
 
   #app.emias.sub.doctor.onedoc.oneday:
   #  class:

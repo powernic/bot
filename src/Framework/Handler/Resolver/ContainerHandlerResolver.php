@@ -20,6 +20,16 @@ class ContainerHandlerResolver
         $this->handlerResolvers = $handlerResolvers;
     }
 
+    public function getHandlerResolver(string $className): ?HandlerResolver
+    {
+        foreach ($this->handlerResolvers as $handlerResolver) {
+            if ($handlerResolver::class === $className) {
+                return $handlerResolver;
+            }
+        }
+        return null;
+    }
+
     public function resolve(): void
     {
         foreach ($this->handlerResolvers as $handlerResolver) {

@@ -24,14 +24,10 @@ class DoctorType extends CallbackHandler
         $speciality = (int)$this->getParameter("speciality");
         $typeButtons = $this->getDoctorTypeButtons($policyId, $speciality);
         $keyboard = new InlineKeyboardMarkup($typeButtons);
-        $this->bot->sendMessage(
-            $this->message->getChat()->getId(),
-            "Запись к врачу:",
-            null,
-            false,
-            null,
-            $keyboard
-        );
+        $chatId = $this->message->getChat()->getId();
+        $messageId = $this->message->getMessageId();
+        $this->bot->editMessageText($chatId, $messageId, "Запись к врачу:");
+        $this->bot->editMessageReplyMarkup($chatId, $messageId, $keyboard); 
     }
 
     private function getDoctorTypeButtons(int $policyId, string $speciality): array
