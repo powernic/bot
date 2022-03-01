@@ -34,6 +34,6 @@ class RemoveCallbackHandler extends CallbackHandler
         } catch (EntityNotFoundException $e) {
             $responseMessage = $this->translator->trans('exception.policy.remove');
         }
-        $this->bot->sendMessage($userId, $responseMessage);
+        $this->sendResponse( $responseMessage);
     }
 }

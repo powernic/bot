@@ -43,7 +43,7 @@ final class EmiasPolicyCommandHandler extends CommandHandler
     {
         $buttons = [];
         foreach ($policies as $policy) {
-            $buttons [] = [['text' => $policy->getName(), 'callback_data' => 'emiaspolicy:edit:' . $policy->getId()]];
+            $buttons [] = [['text' => $policy->getName(), 'callback_data' => 'emiaspolicy:show:' . $policy->getId()]];
         }
 
         return $buttons;

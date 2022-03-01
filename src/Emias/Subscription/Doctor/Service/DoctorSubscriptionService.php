@@ -98,6 +98,27 @@ final class DoctorSubscriptionService extends SubscriptionService
     }
 
 
+    public function registerOnOneDoctorOneDaySubscription(
+        int $policyId,
+        int $doctorId,
+        DateTime $startTime,
+        DateTime $endTime
+    ): DoctorSubscription {
+        $policy = $this->policyRepository->find($policyId);
+        $doctor = $this->doctorRepository->find($doctorId);
+        $doctorSubscription = (new DoctorSubscription())
+            ->setPolicy($policy)
+            ->setStartTimeInterval($startTime)
+            ->setEndTimeInterval($endTime);
+        if ($doctor->doctorSubscriptionsExists($doctorSubscription)) {
+            throw new SubscriptionExistsException();
+        }
+        $doctor->addDoctorSubscription($doctorSubscription);
+        $this->entityManager->persist($doctor);
+        $this->entityManager->flush();
+        return $doctorSubscription;
+    }
+
     protected function getSchedules(DoctorSubscription|Subscription $subscription): ScheduleCollection
     {
         $policy = $subscription->getPolicy();

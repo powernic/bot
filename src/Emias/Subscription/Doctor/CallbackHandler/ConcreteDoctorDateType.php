@@ -7,7 +7,7 @@ use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 class ConcreteDoctorDateType extends CallbackHandler
-{ 
+{
     public function handle(): void
     {
         $policyId = (int)$this->getParameter("id");
@@ -15,14 +15,7 @@ class ConcreteDoctorDateType extends CallbackHandler
         $doctorId = (int)$this->getParameter("doctorId");
         $typeButtons = $this->getDateTypeButtons($policyId, $speciality, $doctorId);
         $keyboard = new InlineKeyboardMarkup($typeButtons);
-        $this->bot->sendMessage(
-            $this->message->getChat()->getId(),
-            "День записи:",
-            null,
-            false,
-            null,
-            $keyboard
-        );
+        $this->sendResponse("День записи:", $typeButtons);
     }
 
     private function getDateTypeButtons(int $policyId, int $speciality, int $doctorId): array

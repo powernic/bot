@@ -180,4 +180,18 @@ class Doctor
         }
         return $this;
     }
+
+    public function getFullName(): string
+    {
+        return "{$this->getLastName()} {$this->getFirstName()} {$this->getSecondName()}";
+    }
+
+    /**
+     * @return int
+     */
+    public function getEmployeeId(): int
+    {
+        return $this->employeeId;
+    }
+
 }

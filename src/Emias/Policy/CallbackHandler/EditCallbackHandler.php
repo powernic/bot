@@ -43,7 +43,7 @@ class EditCallbackHandler extends CallbackHandler
         } catch (UnexpectedRequestException) {
             $responseMessage = $this->translator->trans("exception.unexpected.request");
         }
-        $this->bot->sendMessage($userId, $this->translator->trans($responseMessage));
+        $this->sendResponse($this->translator->trans($responseMessage));
     }
 
     /**

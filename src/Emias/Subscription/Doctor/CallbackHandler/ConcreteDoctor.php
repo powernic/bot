@@ -27,22 +27,14 @@ final class ConcreteDoctor extends CallbackHandler
 
     public function handle(): void
     {
-        $keyboard = null;
+        $keyboard = [];
         $responseMessage = "Доктор:";
         try {
-            $typeButtons = $this->getDoctorButtons();
-            $keyboard = new InlineKeyboardMarkup($typeButtons);
+            $keyboard = $this->getDoctorButtons();
         } catch (RequestException $e) {
             $responseMessage = $e->getResponse()->getRpcErrorMessage();
         }
-        $this->bot->sendMessage(
-            $this->message->getChat()->getId(),
-            $responseMessage,
-            null,
-            false,
-            null,
-            $keyboard
-        );
+        $this->sendResponse($responseMessage, $keyboard);
     }
 
     /**

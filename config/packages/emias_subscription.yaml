@@ -79,13 +79,8 @@ services:
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:allday' }
 
-  #app.emias.sub.doctor.onedoc.oneday:
-  #  class:
-  #  tags:
-  #    - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:oneday' }
+  app.emias.sub.doctor.onedoc.oneday:
+    class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\ConcreteDoctorOneDay
+    tags:
+      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:oneday' }
 
-  #app.emias.sub.doctor.onedoc.oneday.text:
-  #  class:
-  #  tags:
-  #    - { name: 'app.callback_handler', 'action': 'emiassub:{id}:doctor:{speciality}:onedoc:{doctorId}:oneday' }
-#

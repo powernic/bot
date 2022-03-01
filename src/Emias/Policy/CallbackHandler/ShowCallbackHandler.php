@@ -30,6 +30,7 @@ class ShowCallbackHandler extends CallbackHandler
         $keyboard = null;
         /** @var ?Policy $policy */
         $policy = $this->policyRepository->find($id);
+        $actionButtons = [];
         if ($policy) {
             $responseMessage = $this->translator->trans("emias.policy.edit.info", [
                 "%name%" => $policy->getName(),
@@ -37,26 +38,18 @@ class ShowCallbackHandler extends CallbackHandler
                 "%date%" => $policy->getDate()->format("Y-m-d"),
             ]);
             $actionButtons = $this->getActionButtons($id);
-            $keyboard = new InlineKeyboardMarkup($actionButtons);
         } else {
             $responseMessage = $this->translator->trans("exception.policy.not_found");
         }
-        $this->bot->sendMessage(
-            $this->message->getChat()->getId(),
-            $responseMessage,
-            null,
-            false,
-            null,
-            $keyboard
-        );
+        $this->sendResponse($responseMessage, $actionButtons);
     }
 
     private function getActionButtons(int $policyId): array
     {
         return [
             [
-                ['text' => '➖ Удалить', 'callback_data' => 'emiaspolicy:remove:'.$policyId],
-                ['text' => '➕ Редактировать', 'callback_data' => 'emiaspolicy:edit'.$policyId],
+                ['text' => '➖ Удалить', 'callback_data' => 'emiaspolicy:remove:' . $policyId],
+                ['text' => '➕ Редактировать', 'callback_data' => 'emiaspolicy:edit:' . $policyId],
             ],
         ];
     }
