@@ -10,13 +10,12 @@ use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 class ConcreteSpeciality extends CallbackHandler
 {
-    private BotApi $bot;
     private SpecialityRepository $specialityRepository;
 
     public function __construct(BotApi $bot, SpecialityRepository $specialityRepository)
     {
-        $this->bot = $bot;
         $this->specialityRepository = $specialityRepository;
+        parent::__construct($bot);
     }
 
     public function handle(): void

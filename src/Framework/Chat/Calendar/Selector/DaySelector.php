@@ -3,6 +3,7 @@
 namespace Powernic\Bot\Framework\Chat\Calendar\Selector;
 
 use DateTime;
+use Powernic\Bot\Framework\Chat\Calendar\Button;
 use Powernic\Bot\Framework\Chat\Calendar\Selector\CallbackData\CallbackDataFactory;
 use Powernic\Bot\Framework\Chat\Calendar\Selector\CallbackData\DayDataFactory;
 use Powernic\Bot\Framework\Chat\Calendar\Selector\CallbackData\MonthDataFactory;
@@ -27,6 +28,7 @@ class DaySelector extends Selector
         $firstDayInMonth = DateTime::createFromFormat("d/m/Y", "1/{$month}/{$year}");
         $daysOfWeekOfFirstDayInMonth = (int)$firstDayInMonth->format('N');
         $lastDayInMonth = DateTime::createFromFormat("d/m/Y", "{$countDays}/{$month}/{$year}");
+        $inactiveDays = $this->getInactiveDays();
         $daysOfWeekOfLastDayInMonth = (int)$lastDayInMonth->format('N');
         $countEmptyButtonsInFirstRow = $daysOfWeekOfFirstDayInMonth - 1;
         $countEmptyButtonsInLastRow = $countsDaysInWeek - $daysOfWeekOfLastDayInMonth;
@@ -34,9 +36,9 @@ class DaySelector extends Selector
         $gridRowCounts = $gridCellCounts / $countsDaysInWeek;
         $buttons = [];
         $gridValues = array_merge(
-            $this->createEmptyValues($countEmptyButtonsInFirstRow),
-            $this->createDayValues($countDays),
-            $this->createEmptyValues($countEmptyButtonsInLastRow)
+            $this->createEmptyButtons($countEmptyButtonsInFirstRow),
+            $this->createDayButtons($inactiveDays, $countDays),
+            $this->createEmptyButtons($countEmptyButtonsInLastRow)
         );
         $valueIndex = 0;
         for ($gridRowIndex = 0; $gridRowIndex < $gridRowCounts; $gridRowIndex++) {
@@ -45,19 +47,29 @@ class DaySelector extends Selector
                 $buttonsInline[] = $gridValues[$valueIndex];
                 $valueIndex++;
             }
-            $buttons[] = $this->createButtons($buttonsInline);
+            if (!$this->allButtonsIsEmpty($buttonsInline)) {
+                $lineButtons = $this->createLineButtons($buttonsInline);
+                $buttons[] = $lineButtons;
+            }
         }
         return $buttons;
     }
 
-    private function createDayValues(int $count): array
+    private function createDayButtons(int $inactiveDays, int $count): array
     {
-        return range(1, $count);
+        return array_map(
+            fn(int $day) => $inactiveDays > $day ? new Button(" ", 0) : new Button($day, $day),
+            range(1, $count)
+        );
     }
 
-    private function createEmptyValues(int $count): array
+    /**
+     * @param int $count
+     * @return Button[]
+     */
+    private function createEmptyButtons(int $count): array
     {
-        return array_map(fn() => ' ', range(1, $count));
+        return array_map(fn() => new Button(' ', 0), range(1, $count));
     }
 
     protected function getFooterButtons(): array
@@ -80,5 +92,19 @@ class DaySelector extends Selector
     public function getMessage(): string
     {
         return "Выберите день";
+    }
+
+    /**
+     * @return int
+     */
+    private function getInactiveDays(): int
+    {
+        $currentDate = new DateTime();
+        $isTheSameYear = (int)$currentDate->format('Y') === (int)$this->selectedDate->format('Y');
+        $isTheSameMonth = (int)$currentDate->format('m') === (int)$this->selectedDate->format('m');
+        if ($isTheSameYear && $isTheSameMonth) {
+            return (int)$currentDate->format('d');
+        }
+        return 0;
     }
 }

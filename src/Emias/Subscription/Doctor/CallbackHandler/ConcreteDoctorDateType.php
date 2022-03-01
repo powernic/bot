@@ -7,14 +7,7 @@ use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 class ConcreteDoctorDateType extends CallbackHandler
-{
-    private BotApi $bot;
-
-    public function __construct(BotApi $bot)
-    {
-        $this->bot = $bot;
-    }
-
+{ 
     public function handle(): void
     {
         $policyId = (int)$this->getParameter("id");

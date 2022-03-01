@@ -12,7 +12,6 @@ use TelegramBot\Api\Exception as BotException;
 
 class AddCallbackHandler extends CallbackHandler
 {
-    private BotApi $bot;
     private TranslatorInterface $translator;
     private PolicyForm $form;
     private UserService $userService;
@@ -23,10 +22,10 @@ class AddCallbackHandler extends CallbackHandler
         TranslatorInterface $translator,
         PolicyForm $form
     ) {
-        $this->bot = $bot;
         $this->translator = $translator;
         $this->form = $form;
         $this->userService = $userService;
+        parent::__construct($bot);
     }
 
     /**

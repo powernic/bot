@@ -2,10 +2,11 @@
 
 namespace Powernic\Bot\Emias\Subscription\Doctor\Service;
 
+use DateTime;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Powernic\Bot\Emias\API\Entity\ScheduleCollection;
-use Powernic\Bot\Emias\API\Repository\ScheduleRepository; 
+use Powernic\Bot\Emias\API\Repository\ScheduleRepository;
 use Powernic\Bot\Emias\Entity\Speciality;
 use Powernic\Bot\Emias\Exception\SubscriptionExistsException;
 use Powernic\Bot\Emias\Policy\Entity\Policy;
@@ -47,12 +48,17 @@ final class DoctorSubscriptionService extends SubscriptionService
         $policy = $this->policyRepository->find($policyId);
         /** @var Speciality $speciality */
         $speciality = $this->specialityRepository->find($speciality);
-        $doctorSubscription = (new SpecialitySubscription())
+        $specialitySubscription = (new SpecialitySubscription())
             ->setPolicy($policy);
-        $speciality->addSpecialitySubscription($doctorSubscription);
+
+        if ($speciality->specialitySubscriptionsExists($specialitySubscription)) {
+            throw new SubscriptionExistsException();
+        }
+
+        $speciality->addSpecialitySubscription($specialitySubscription);
         $this->entityManager->persist($speciality);
         $this->entityManager->flush();
-        return $doctorSubscription;
+        return $specialitySubscription;
     }
 
     public function registerOnOneDoctorAllDaySubscription(int $policyId, int $doctorId): DoctorSubscription
@@ -61,7 +67,7 @@ final class DoctorSubscriptionService extends SubscriptionService
         $doctor = $this->doctorRepository->find($doctorId);
         $doctorSubscription = (new DoctorSubscription())
             ->setPolicy($policy);
-        if($doctor->doctorSubscriptionsExists($doctorSubscription)){
+        if ($doctor->doctorSubscriptionsExists($doctorSubscription)) {
             throw new SubscriptionExistsException();
         }
         $doctor->addDoctorSubscription($doctorSubscription);
@@ -69,6 +75,28 @@ final class DoctorSubscriptionService extends SubscriptionService
         $this->entityManager->flush();
         return $doctorSubscription;
     }
+
+    public function registerOnAllDoctorOneDaySubscription(
+        int $policyId,
+        int $speciality,
+        DateTime $startTime,
+        DateTime $endTime
+    ): SpecialitySubscription {
+        $policy = $this->policyRepository->find($policyId);
+        $speciality = $this->specialityRepository->find($speciality);
+        $specialitySubscription = (new SpecialitySubscription())
+            ->setPolicy($policy)
+            ->setStartTimeInterval($startTime)
+            ->setEndTimeInterval($endTime);
+        if ($speciality->specialitySubscriptionsExists($specialitySubscription)) {
+            throw new SubscriptionExistsException();
+        }
+        $speciality->addSpecialitySubscription($specialitySubscription);
+        $this->entityManager->persist($speciality);
+        $this->entityManager->flush();
+        return $specialitySubscription;
+    }
+
 
     protected function getSchedules(DoctorSubscription|Subscription $subscription): ScheduleCollection
     {

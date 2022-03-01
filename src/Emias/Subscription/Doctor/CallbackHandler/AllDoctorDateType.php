@@ -9,16 +9,6 @@ use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 class AllDoctorDateType extends CallbackHandler
 {
 
-    /**
-     * @var \TelegramBot\Api\BotApi
-     */
-    private BotApi $bot;
-
-    public function __construct(BotApi $bot)
-    {
-        $this->bot = $bot;
-    }
-
     public function handle(): void
     {
         $policyId = (int)$this->getParameter("id");
@@ -39,7 +29,7 @@ class AllDoctorDateType extends CallbackHandler
             $buttons [] = [
                 [
                     'text' => $label,
-                    'callback_data' => 'emiassub:'.$policyId.':doctor:'.$speciality.':'.$type,
+                    'callback_data' => 'emiassub:' . $policyId . ':doctor:' . $speciality . ':alldoc:' . $type,
                 ],
             ];
         }

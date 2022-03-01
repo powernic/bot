@@ -183,6 +183,20 @@ class Speciality
         }
 
         return $this;
-    } 
+    }
 
+    public function specialitySubscriptionsExists(SpecialitySubscription $specialitySubscription)
+    {
+        return $this->specialitySubscriptions->exists(
+            function ($key, SpecialitySubscription $value) use ($specialitySubscription) {
+                $theSamePolicy = $value->getPolicy()->getId() === $specialitySubscription->getPolicy()->getId();
+                $theSameStartTime = $value->getStartTimeInterval()?->getTimestamp(
+                    ) === $specialitySubscription->getStartTimeInterval()?->getTimestamp();
+                $theSameEndTime = $value->getEndTimeInterval()?->getTimestamp(
+                    ) === $specialitySubscription->getEndTimeInterval()?->getTimestamp();
+                $theSameTimeInterval = $theSameStartTime && $theSameEndTime;
+                return $theSamePolicy && $theSameTimeInterval;
+            }
+        );
+    }
 }

@@ -9,16 +9,6 @@ use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 class ReceiptSubscriptionCallbackHandler extends CallbackHandler
 {
 
-    /**
-     * @var \TelegramBot\Api\BotApi
-     */
-    private BotApi $bot;
-
-    public function __construct(BotApi $bot)
-    {
-        $this->bot = $bot;
-    }
-
     public function handle(): void
     {
         $policyId = (int)$this->getParameter("id");

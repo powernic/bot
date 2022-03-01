@@ -10,7 +10,7 @@ use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 abstract class CallbackHandler extends RouteHandler implements AvailableRouteInterface, AvailableMessageInterface
 {
-    private BotApi $bot;
+    protected BotApi $bot;
 
     public function __construct(BotApi $bot)
     {
@@ -21,14 +21,20 @@ abstract class CallbackHandler extends RouteHandler implements AvailableRouteInt
     {
         $chatId = $this->message->getChat()->getId();
         $messageId = $this->message->getMessageId();
-        $context = CallbackPrefixer::encodePrefix($this->getRoute());
+        $currentContext = new CallbackPrefixer($this->message);
+        if ($currentContext->getPrefix()) {
+            $route = $currentContext->getPrefix();
+        } else {
+            $route = $this->getRoute();
+        }
+        $context = CallbackPrefixer::encodePrefix($route);
         $this->bot->editMessageText(
             $chatId,
             $messageId,
             $message . ($withContext ? $context : ""),
             $withContext ? 'HTML' : null
         );
-        if(!empty($buttons)) {
+        if (!empty($buttons)) {
             $this->bot->editMessageReplyMarkup($chatId, $messageId, new InlineKeyboardMarkup($buttons));
         }
     }

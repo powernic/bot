@@ -13,7 +13,6 @@ use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 final class ConcreteDoctor extends CallbackHandler
 {
 
-    private BotApi $bot;
     private DoctorService $doctorService;
     private DoctorRepository $doctorRepository;
 
@@ -23,6 +22,7 @@ final class ConcreteDoctor extends CallbackHandler
         $this->bot = $bot;
         $this->doctorService = $doctorService;
         $this->doctorRepository = $doctorRepository;
+        parent::__construct($bot);
     }
 
     public function handle(): void

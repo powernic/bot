@@ -11,11 +11,9 @@ use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Exception;
 use TelegramBot\Api\InvalidArgumentException;
 
-
 class EditCallbackHandler extends CallbackHandler
 {
 
-    private BotApi $bot;
     private UserService $userService;
     private TranslatorInterface $translator;
     private PolicyForm $form;
@@ -26,10 +24,10 @@ class EditCallbackHandler extends CallbackHandler
         TranslatorInterface $translator,
         PolicyForm $form
     ) {
-        $this->bot = $bot;
         $this->userService = $userService;
         $this->translator = $translator;
         $this->form = $form;
+        parent::__construct($bot);
     }
 
     /**

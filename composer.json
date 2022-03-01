@@ -38,6 +38,6 @@
         "ocramius/proxy-manager": "^1.0",
         "graze/guzzle-jsonrpc": "^3.2",
         "netresearch/jsonmapper": "^4.0",
-      "ext-calendar": "*"
+        "sentry/sdk": "^3.1"
     }
 }

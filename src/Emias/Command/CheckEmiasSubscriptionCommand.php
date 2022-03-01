@@ -2,7 +2,6 @@
 
 namespace Powernic\Bot\Emias\Command;
 
-use Powernic\Bot\Emias\Subscription\Doctor\Entity\DoctorSubscription;
 use Powernic\Bot\Emias\Subscription\Doctor\Service\DoctorSubscriptionService;
 use Powernic\Bot\Emias\Subscription\Doctor\Service\SpecialitySubscriptionService;
 use Symfony\Component\Console\Command\Command;

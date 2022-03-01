@@ -13,7 +13,6 @@ use TelegramBot\Api\BotApi;
 class OneDoctorAllDay extends CallbackHandler
 {
     private DoctorSubscriptionService $doctorSubscriptionService;
-    private BotApi $bot;
     private DoctorRepository $doctorRepository;
     private TranslatorInterface $translator;
 
@@ -23,10 +22,10 @@ class OneDoctorAllDay extends CallbackHandler
         DoctorRepository $doctorRepository,
         DoctorSubscriptionService $doctorSubscriptionService
     ) {
-        $this->bot = $bot;
         $this->doctorSubscriptionService = $doctorSubscriptionService;
         $this->doctorRepository = $doctorRepository;
         $this->translator = $translator;
+        parent::__construct($bot);
     }
 
     public function handle(): void

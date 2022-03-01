@@ -12,13 +12,12 @@ class RemoveCallbackHandler extends CallbackHandler
 {
     private PolicyService $policyService;
     private TranslatorInterface $translator;
-    private BotApi $bot;
 
     public function __construct(PolicyService $policyService, TranslatorInterface $translator, BotApi $bot)
     {
         $this->policyService = $policyService;
         $this->translator = $translator;
-        $this->bot = $bot;
+        parent::__construct($bot);
     }
 
 

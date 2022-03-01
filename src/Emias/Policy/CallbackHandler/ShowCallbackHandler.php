@@ -11,7 +11,6 @@ use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 class ShowCallbackHandler extends CallbackHandler
 {
-    private BotApi $bot;
     private TranslatorInterface $translator;
     private PolicyRepository $policyRepository;
 
@@ -20,9 +19,9 @@ class ShowCallbackHandler extends CallbackHandler
         TranslatorInterface $translator,
         PolicyRepository $policyRepository
     ) {
-        $this->bot = $bot;
         $this->translator = $translator;
         $this->policyRepository = $policyRepository;
+        parent::__construct($bot);
     }
 
     public function handle(): void

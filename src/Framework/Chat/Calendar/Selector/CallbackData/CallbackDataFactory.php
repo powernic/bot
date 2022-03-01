@@ -17,7 +17,7 @@ abstract class CallbackDataFactory
 
     protected function createCallbackPrefix(string $calendarRoute): string
     {
-        return preg_replace('/:\d{4}:\d{1,2}:\d{1,2}:\d$/', '', $calendarRoute);
+        return preg_replace('/:\d{1,4}:\d{1,2}:\d{1,2}:\d$/', '', $calendarRoute);
     }
 
     protected function getYear(int $value): int

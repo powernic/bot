@@ -2,7 +2,7 @@
 
 namespace Powernic\Bot\Emias\Subscription\Doctor\Entity;
 
-use DateTimeImmutable;
+use DateTime;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Embedded;
 use Doctrine\ORM\Mapping\GeneratedValue;
@@ -17,7 +17,7 @@ abstract class Subscription
     /**
      * @Column(type="datetimetz", name="start_time_interval", nullable="true")
      */
-    protected ?DateTimeImmutable $startTimeInterval = null;
+    protected ?DateTime $startTimeInterval = null;
     /**
      * @Embedded(class=\Powernic\Bot\Emias\Entity\Schedule::class, columnPrefix = "schedule_")
      */
@@ -35,13 +35,13 @@ abstract class Subscription
     /**
      * @Column(type="datetimetz", name="end_time_interval", nullable="true")
      */
-    protected ?DateTimeImmutable $endTimeInterval = null;
+    protected ?DateTime $endTimeInterval = null;
 
 
     /**
-     * @param ?DateTimeImmutable $endTimeInterval
+     * @param ?DateTime $endTimeInterval
      */
-    public function setEndTimeInterval(?DateTimeImmutable $endTimeInterval): self
+    public function setEndTimeInterval(?DateTime $endTimeInterval): self
     {
         $this->endTimeInterval = $endTimeInterval;
 
@@ -49,17 +49,17 @@ abstract class Subscription
     }
 
     /**
-     * @return ?DateTimeImmutable
+     * @return ?DateTime
      */
-    public function getEndTimeInterval(): ?DateTimeImmutable
+    public function getEndTimeInterval(): ?DateTime
     {
         return $this->endTimeInterval;
     }
 
     /**
-     * @param ?DateTimeImmutable $startTimeInterval
+     * @param ?DateTime $startTimeInterval
      */
-    public function setStartTimeInterval(?DateTimeImmutable $startTimeInterval): self
+    public function setStartTimeInterval(?DateTime $startTimeInterval): self
     {
         $this->startTimeInterval = $startTimeInterval;
 
@@ -75,9 +75,9 @@ abstract class Subscription
     }
 
     /**
-     * @return ?DateTimeImmutable
+     * @return ?DateTime
      */
-    public function getStartTimeInterval(): ?DateTimeImmutable
+    public function getStartTimeInterval(): ?DateTime
     {
         return $this->startTimeInterval;
     }

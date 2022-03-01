@@ -3,20 +3,10 @@
 namespace Powernic\Bot\Emias\Subscription\CallbackHandler;
 
 use Powernic\Bot\Framework\Handler\Callback\CallbackHandler;
-use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 class TypeCallbackHandler extends CallbackHandler
 {
-    /**
-     * @var \TelegramBot\Api\BotApi
-     */
-    private BotApi $bot;
-
-    public function __construct(BotApi $bot)
-    {
-        $this->bot = $bot;
-    }
 
     public function handle(): void
     {

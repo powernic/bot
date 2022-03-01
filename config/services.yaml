@@ -1,6 +1,14 @@
+
 services:
   _defaults:
     autowire: true
 
   yaml_loader:
     class: Symfony\Component\Translation\Loader\YamlFileLoader
+
+
+  Powernic\Bot\Framework\Command\SetWebhookCommand:
+    arguments:
+      $hookUrl: '%env(WEBHOOK_URL)%'
+    tags:
+      - { name: 'console.command' }

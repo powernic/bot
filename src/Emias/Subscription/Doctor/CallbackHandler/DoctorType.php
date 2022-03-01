@@ -3,20 +3,10 @@
 namespace Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler;
 
 use Powernic\Bot\Framework\Handler\Callback\CallbackHandler;
-use TelegramBot\Api\BotApi;
 use TelegramBot\Api\Types\Inline\InlineKeyboardMarkup;
 
 class DoctorType extends CallbackHandler
 {
-    /**
-     * @var \TelegramBot\Api\BotApi
-     */
-    private BotApi $bot;
-
-    public function __construct(BotApi $bot)
-    {
-        $this->bot = $bot;
-    }
 
     public function handle(): void
     {
@@ -27,7 +17,7 @@ class DoctorType extends CallbackHandler
         $chatId = $this->message->getChat()->getId();
         $messageId = $this->message->getMessageId();
         $this->bot->editMessageText($chatId, $messageId, "Запись к врачу:");
-        $this->bot->editMessageReplyMarkup($chatId, $messageId, $keyboard); 
+        $this->bot->editMessageReplyMarkup($chatId, $messageId, $keyboard);
     }
 
     private function getDoctorTypeButtons(int $policyId, string $speciality): array
@@ -38,7 +28,7 @@ class DoctorType extends CallbackHandler
             $buttons [] = [
                 [
                     'text' => $label,
-                    'callback_data' => 'emiassub:'.$policyId.':doctor:'.$speciality.':'.$type,
+                    'callback_data' => 'emiassub:' . $policyId . ':doctor:' . $speciality . ':' . $type,
                 ],
             ];
         }
