@@ -28,10 +28,6 @@ class Speciality
      * @Column(type="string")
      */
     private string $name;
-    private bool $male;
-    private bool $female;
-    private array $areaType;
-    private bool $therapeutic;
 
     /**
      * @OneToMany(targetEntity=\Powernic\Bot\Emias\Subscription\Doctor\Entity\SpecialitySubscription::class,
@@ -90,71 +86,7 @@ class Speciality
 
         return $this;
     }
-
-    /**
-     * @return bool
-     */
-    public function isMale(): bool
-    {
-        return $this->male;
-    }
-
-    /**
-     * @param bool $male
-     */
-    public function setMale(bool $male): void
-    {
-        $this->male = $male;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isFemale(): bool
-    {
-        return $this->female;
-    }
-
-    /**
-     * @param bool $female
-     */
-    public function setFemale(bool $female): void
-    {
-        $this->female = $female;
-    }
-
-    /**
-     * @return array
-     */
-    public function getAreaType(): array
-    {
-        return $this->areaType;
-    }
-
-    /**
-     * @param array $areaType
-     */
-    public function setAreaType(array $areaType): void
-    {
-        $this->areaType = $areaType;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isTherapeutic(): bool
-    {
-        return $this->therapeutic;
-    }
-
-    /**
-     * @param bool $therapeutic
-     */
-    public function setTherapeutic(bool $therapeutic): void
-    {
-        $this->therapeutic = $therapeutic;
-    }
-
+ 
 
     /**
      * @param SpecialitySubscription $specialitySubscription

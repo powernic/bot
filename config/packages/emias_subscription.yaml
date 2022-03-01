@@ -32,10 +32,10 @@ services:
     tags:
       - { name: 'app.callback_handler', 'callback': 'emiassub:{id}' }
 
-  app.emias.sub.receipt:
-    class: Powernic\Bot\Emias\Subscription\Receipt\CallbackHandler\ReceiptSubscriptionCallbackHandler
-    tags:
-      - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:receipt' }
+ #app.emias.sub.receipt:
+ #  class: Powernic\Bot\Emias\Subscription\Receipt\CallbackHandler\ReceiptSubscriptionCallbackHandler
+ #  tags:
+ #    - { name: 'app.callback_handler', 'callback': 'emiassub:{id}:receipt' }
 
   app.emias.sub.doctor:
     class: Powernic\Bot\Emias\Subscription\Doctor\CallbackHandler\ConcreteSpeciality

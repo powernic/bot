@@ -22,7 +22,10 @@ class TypeCallbackHandler extends CallbackHandler
     private function getTypeButtons(int $policyId): array
     {
         $buttons = [];
-        $types = ["receipt" => "Направление", 'doctor' => 'Врач'];
+        $types = [
+            ### "receipt" => "Направление",
+            'doctor' => 'Врач'
+        ];
         foreach ($types as $type => $label) {
             $buttons [] = [['text' => $label, 'callback_data' => 'emiassub:' . $policyId . ':' . $type]];
         }

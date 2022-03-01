@@ -4,6 +4,7 @@ namespace Powernic\Bot\Framework\Chat\Calendar\Selector;
 
 use DateTime;
 use Powernic\Bot\Framework\Chat\Calendar\Selector\CallbackData\DayDataFactory;
+use Powernic\Bot\Framework\Chat\Calendar\Selector\CallbackData\DayPeriodDataFactory;
 use Powernic\Bot\Framework\Chat\Calendar\Selector\CallbackData\MonthDataFactory;
 use Powernic\Bot\Framework\Chat\Calendar\Selector\CallbackData\YearDataFactory;
 
@@ -59,7 +60,7 @@ class SelectorFactory
     private function createDayPeriodSelector(int $day, int $month, int $year, string $calendarRoute): DayPeriodSelector
     {
         $date = DateTime::createFromFormat('d/m/Y', "{$day}/{$month}/{$year}");
-        $dataFactory = new DayDataFactory($calendarRoute, $date);
+        $dataFactory = new DayPeriodDataFactory($calendarRoute, $date);
         return new DayPeriodSelector($dataFactory, $date);
     }
 
